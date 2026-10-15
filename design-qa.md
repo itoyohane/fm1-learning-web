@@ -10,6 +10,10 @@ The user rejected all generated concepts and chose a concise learning-manual lay
 
 Chapter navigation, concise instructional articles, local search, page outline, previous/next links, light/dark mode, mobile navigation and print styling. No decorative assets or simulated hardware.
 
+The v0.2 iteration adds complete English chapters and UI, reading-position preservation, native language selection, tactile key labels and button feedback. Search now has grouped bilingual results, default suggestions, a clear action, active-descendant selection, IME guards, retained queries, and separate focus restoration for cancellation versus navigation. Reduced-motion preferences disable animations.
+
+Automated v0.2 checks cover all 17 translations, matching route/section IDs, bilingual queries, group order, selection wrapping, IME key classification, reading-anchor calculations, static assets and hosting output. These are not browser interaction tests.
+
 ## Verification limits
 
 Reference text was read through web access. No browser or browser-capture tool is available, so no rendered screenshots, paired visual comparison, browser console review or real interaction checks were performed. This report does not claim visual QA passed. Automated checks are listed in README.md and can run without network access.

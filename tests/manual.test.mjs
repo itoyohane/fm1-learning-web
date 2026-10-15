@@ -8,9 +8,10 @@ import { serveResource } from '../scripts/dev-server.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const context = vm.createContext({ window: {} });
-for (const file of ['content.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
+for (const file of ['content.js', 'content-en.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
 const { pages, sources } = context.window.FeluccaManual;
-const { parseRoute, buildSearchIndex, search, excerpt } = context.window.FeluccaCore;
+const locales = context.window.FeluccaLocales;
+const { parseRoute, buildSearchIndex, search, excerpt, tokenize, groupResults, moveSelection, readingAnchor, isComposing } = context.window.FeluccaCore;
 const index = buildSearchIndex(pages);
 const byId = new Map(pages.map((page) => [page.id, page]));
 
@@ -83,6 +84,8 @@ test('offline entry point references only files included in the project', () => 
   assert.match(html, /lang="zh-CN"/);
   for (const match of html.matchAll(/(?:src|href)="\.\/([^"]+)"/g)) assert.ok(existsSync(path.join(root, match[1])), match[1]);
   assert.ok(html.indexOf('content.js') < html.indexOf('core.js'));
+  assert.ok(html.indexOf('content-en.js') < html.indexOf('locales.js'));
+  assert.ok(html.indexOf('locales.js') < html.indexOf('app.js'));
   assert.ok(html.indexOf('core.js') < html.indexOf('app.js'));
 });
 
@@ -96,9 +99,109 @@ test('preview handler serves HTML, CSS and scripts without exposing private file
   const head = await serveResource(new Request('http://local.preview/src/content.js', { method: 'HEAD' }));
   assert.equal(head.status, 200);
   assert.equal(await head.text(), '');
+  for (const file of ['content-en.js', 'locales.js']) {
+    const response = await serveResource(new Request('http://local.preview/src/' + file));
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type'), /javascript/);
+  }
   for (const resource of ['/.git/config', '/AGENTS.md', '/src/%2e%2e/%2e%2e/AGENTS.md', '/%E0%A4%A']) {
     const response = await serveResource(new Request('http://local.preview' + resource));
     assert.ok([400, 404].includes(response.status), resource);
   }
   assert.equal((await serveResource(new Request('http://local.preview/', { method: 'POST' }))).status, 405);
+});
+
+test('both languages provide every chapter, section, and source without fallback text', () => {
+  assert.equal(locales.en.pages.length, locales.zh.pages.length);
+  for (const [i, original] of locales.zh.pages.entries()) {
+    const english = locales.en.pages[i];
+    assert.equal(english.id, original.id);
+    assert.equal(JSON.stringify(english.sections.map((section) => section.id)), JSON.stringify(original.sections.map((section) => section.id)));
+    assert.equal(JSON.stringify(english.sources), JSON.stringify(original.sources));
+    for (const text of [english.title, english.group, english.summary, ...english.sections.flatMap((section) => [section.title, section.body])]) {
+      assert.ok(text.length);
+      assert.doesNotMatch(text, /[\u3400-\u9fff]/u, english.id);
+    }
+  }
+  for (const id of Object.keys(sources)) {
+    assert.equal(locales.en.sources[id].url, locales.zh.sources[id].url);
+    assert.ok(locales.en.sources[id].title);
+  }
+});
+
+test('English chapter cross-links and source HTML remain safe and navigable', () => {
+  const englishById = new Map(locales.en.pages.map((page) => [page.id, page]));
+  for (const page of locales.en.pages) for (const section of page.sections) {
+    assert.doesNotMatch(section.body, /<script|onerror=|onclick=|javascript:/i);
+    for (const match of section.body.matchAll(/href="(#\/[^"]+)"/g)) {
+      const route = parseRoute(match[1]);
+      const target = englishById.get(route.pageId);
+      assert.ok(target, match[1]);
+      if (route.sectionId) assert.ok(target.sections.some((item) => item.id === route.sectionId), match[1]);
+    }
+  }
+});
+
+test('all static interface labels have complete Chinese and English translations', () => {
+  const ui = context.window.FeluccaUI;
+  assert.equal(JSON.stringify(Object.keys(ui.en).sort()), JSON.stringify(Object.keys(ui.zh).sort()));
+  for (const labels of Object.values(ui)) for (const value of Object.values(labels)) assert.ok(typeof value === 'string' && value.length);
+  const html = readFileSync(path.join(root, 'index.html'), 'utf8');
+  for (const match of html.matchAll(/data-i18n="([^"]+)"/g)) for (const labels of Object.values(ui)) assert.ok(labels[match[1]], match[1]);
+});
+
+test('bilingual searches return the selected language, including natural task queries', () => {
+  const englishIndex = buildSearchIndex(locales.en.pages, locales.zh.pages);
+  const chineseIndex = buildSearchIndex(locales.zh.pages, locales.en.pages);
+  for (const query of ['保存工程', 'How do I save a project', 'save project']) {
+    const result = search(englishIndex, query)[0];
+    assert.equal(result.pageId, 'saving', query);
+    assert.equal(result.sectionId, 'save-project', query);
+    assert.equal(result.title, 'Save a project');
+  }
+  assert.equal(search(chineseIndex, 'save project')[0].title, '保存整个工程');
+  assert.ok(search(englishIndex, '没声音').some((result) => result.pageId === 'troubleshooting'));
+  assert.ok(search(englishIndex, 'ｒｅｃ').some((result) => result.pageId === 'live-recording'));
+  assert.equal(search(englishIndex, 'how to').length, 0);
+});
+
+test('search grouping preserves every result and keyboard order within a chapter', () => {
+  const matches = search(buildSearchIndex(locales.en.pages, locales.zh.pages), 'REC');
+  const groups = groupResults(matches);
+  assert.equal(groups.flatMap((group) => group.items).length, matches.length);
+  assert.equal(new Set(groups.map((group) => group.pageId)).size, groups.length);
+  for (const group of groups) {
+    assert.ok(group.title);
+    assert.ok(group.items.every((item) => item.pageId === group.pageId));
+    assert.equal(JSON.stringify(group.items.map((item) => item.sectionId)), JSON.stringify(matches.filter((item) => item.pageId === group.pageId).map((item) => item.sectionId)));
+  }
+});
+
+test('keyboard selection wraps, handles empty results, and ignores IME confirmation', () => {
+  assert.equal(moveSelection(-1, 1, 5), 0);
+  assert.equal(moveSelection(-1, -1, 5), 4);
+  assert.equal(moveSelection(4, 1, 5), 0);
+  assert.equal(moveSelection(0, -1, 5), 4);
+  assert.equal(moveSelection(0, 1, 1), 0);
+  assert.equal(moveSelection(0, 1, 0), -1);
+  assert.equal(isComposing({ key: 'Enter', isComposing: true }), true);
+  assert.equal(isComposing({ key: 'Enter', keyCode: 229 }), true);
+  assert.equal(isComposing({ key: 'Enter', isComposing: false, keyCode: 13 }), false);
+});
+
+test('reading position is tied to a stable section and proportion, not document length', () => {
+  const snapshot = readingAnchor([{ id: 'before-start', top: -100, height: 600 }, { id: 'first-sound', top: 500, height: 900 }], 140);
+  assert.equal(snapshot.id, 'before-start');
+  assert.equal(snapshot.fraction, 0.4);
+  assert.equal(readingAnchor([{ id: 'before-start', top: 200, height: 600 }], 140), null);
+  assert.equal(readingAnchor([], 140), null);
+  assert.equal(readingAnchor([{ id: 'zero', top: 0, height: 0 }], 140).fraction, 1);
+});
+
+test('query normalization is repeatable and punctuation cannot become a regular expression', () => {
+  const first = tokenize('保存工程');
+  first.push('mutated');
+  assert.ok(!tokenize('保存工程').includes('mutated'));
+  assert.equal(tokenize('.*[()]').length, 0);
+  assert.equal(excerpt('Start here. Save the project in slot A.', 'save project'), 'Start here. Save the project in slot A.');
 });

@@ -9,60 +9,67 @@
     <title>快速开始 · Felucca 学习手册</title>
     <link rel="stylesheet" href="./src/styles.css" />
     <script src="./src/content.js" defer></script>
+    <script src="./src/content-en.js" defer></script>
+    <script src="./src/locales.js" defer></script>
     <script src="./src/core.js" defer></script>
     <script src="./src/app.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">跳转到正文</a>
+    <a class="skip-link" href="#main-content" data-i18n="skip">跳转到正文</a>
     <header class="site-header">
       <div class="header-inner">
         <a class="brand" href="#/quick-start" aria-label="Felucca 学习手册首页">Felucca <span>Docs</span></a>
         <span class="version">v1.6.1</span>
-        <button id="open-search" class="search-trigger" type="button" aria-haspopup="dialog">搜索手册 <kbd>Ctrl K</kbd></button>
+        <button id="open-search" class="search-trigger" type="button" aria-haspopup="dialog" aria-controls="search-dialog"><span class="search-label" data-i18n="searchShort">搜索</span><kbd id="search-shortcut">Ctrl K</kbd></button>
         <div class="header-actions">
-          <a href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener noreferrer">固件源码</a>
+          <a href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener noreferrer" data-i18n="firmware">固件源码</a>
+          <label class="language-control"><span class="sr-only" data-i18n="language">阅读语言</span><select id="language-select"><option value="zh">中文</option><option value="en">English</option></select></label>
           <button id="theme-toggle" class="text-button" type="button" aria-pressed="false">深色模式</button>
         </div>
       </div>
       <nav class="top-nav" aria-label="主导航">
         <div class="top-nav-inner">
-          <button id="menu-toggle" class="text-button mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">目录</button>
-          <a href="#/quick-start" data-tab="manual">学习手册</a>
-          <a href="#/shortcuts" data-tab="shortcuts">按键速查</a>
-          <a href="#/sources" data-tab="sources">官方资料</a>
-          <span class="nav-context">M-VAVE FM-1 · 中文</span>
+          <button id="menu-toggle" class="text-button mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar" data-i18n="menu">目录</button>
+          <a href="#/quick-start" data-tab="manual" data-i18n="manual">学习手册</a>
+          <a href="#/shortcuts" data-tab="shortcuts" data-i18n="shortcuts">按键速查</a>
+          <a href="#/sources" data-tab="sources" data-i18n="sources">官方资料</a>
+          <span class="nav-context" data-i18n="context">M-VAVE FM-1 · 中文</span>
         </div>
       </nav>
     </header>
     <div id="sidebar-backdrop" hidden></div>
     <div class="docs-layout">
       <aside id="sidebar" class="sidebar" aria-label="章节目录">
-        <div class="sidebar-heading">FM-1 / Felucca <button id="close-menu" class="text-button" type="button">关闭</button></div>
+        <div class="sidebar-heading">FM-1 / Felucca <button id="close-menu" class="text-button" type="button" data-i18n="close">关闭</button></div>
         <nav id="chapter-nav" aria-label="学习章节"></nav>
-        <div class="sidebar-note">非官方中文手册<br />依据固件 v1.6.1 整理</div>
+        <div class="sidebar-note"><span data-i18n="sidebarNote">非官方学习手册</span><br /><span data-i18n="baseline">内容基线：Felucca v1.6.1</span></div>
       </aside>
       <main id="main-content" tabindex="-1">
         <div id="breadcrumb" class="breadcrumb"></div>
         <article id="article"></article>
         <nav id="page-navigation" class="page-navigation" aria-label="相邻章节"></nav>
-        <footer class="article-footer">核对日期：2026-10-15 · M-VAVE FM-1 / Felucca v1.6.1</footer>
+        <footer class="article-footer" data-i18n="checked">核对日期：2026-10-15 · M-VAVE FM-1 / Felucca v1.6.1</footer>
       </main>
       <aside class="page-outline" aria-label="本页目录">
-        <p class="outline-title">本页内容</p>
+        <p class="outline-title" data-i18n="outline">本页内容</p>
         <nav id="table-of-contents" aria-label="正文小节"></nav>
-        <div class="outline-tools"><button id="print-page" class="text-button" type="button">打印本页</button></div>
+        <div class="outline-tools"><button id="print-page" class="text-button" type="button" data-i18n="print">打印本页</button></div>
       </aside>
     </div>
     <dialog id="search-dialog" aria-labelledby="search-title">
       <div class="search-dialog-header">
-        <label id="search-title" for="search-input">搜索手册</label>
-        <button id="close-search" class="text-button" type="button">关闭 <kbd>Esc</kbd></button>
+        <label id="search-title" for="search-input" data-i18n="search">搜索手册</label>
+        <button id="close-search" class="text-button" type="button"><span data-i18n="close">关闭</span><kbd>Esc</kbd></button>
       </div>
-      <input id="search-input" type="search" placeholder="搜索：保存、REC、音色、没声音…" autocomplete="off" aria-controls="search-results" aria-describedby="search-status" />
+      <div class="search-input-wrap">
+        <input id="search-input" type="search" role="combobox" placeholder="搜索操作、章节或英文按键…" autocomplete="off" spellcheck="false" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results" aria-describedby="search-status" />
+        <button id="clear-search" class="text-button" type="button" aria-label="清空搜索内容" hidden data-i18n="clear">清空</button>
+      </div>
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
-      <div id="search-results" class="search-results"></div>
-      <div class="search-help">使用上下方向键选择，回车打开</div>
+      <div id="search-results" class="search-results" role="listbox" aria-label="搜索结果"></div>
+      <div id="search-empty" class="search-empty" hidden><strong data-i18n="searchEmpty">没有找到相关内容</strong><p data-i18n="searchEmptyHelp">试试“保存”“REC”或“音色”，也支持英文搜索。</p></div>
+      <div class="search-help"><span><kbd>↑</kbd><kbd>↓</kbd> <span data-i18n="searchHelp">选择</span></span><span><kbd>Enter</kbd> <span data-i18n="searchOpen">打开</span></span><span><kbd>Esc</kbd> <span data-i18n="searchDismiss">关闭</span></span></div>
     </dialog>
-    <noscript><p class="noscript-message">请启用 JavaScript 以阅读完整手册与搜索章节。</p></noscript>
+    <noscript><p class="noscript-message">请启用 JavaScript 以阅读完整手册与搜索章节。 Enable JavaScript to read and search the manual.</p></noscript>
   </body>
 </html>
