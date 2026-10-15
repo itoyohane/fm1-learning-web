@@ -1,0 +1,51 @@
+# Felucca 学习手册
+
+面向已刷入 Felucca 的 M-VAVE FM-1 新手。以 LangChain 文档站为布局参考，提供中文操作步骤、17 个章节、全文搜索、按键速查和本页目录。
+
+内容基线为 **Felucca v1.6.1**，核对日期 **2026-10-15**。每章末尾列出官方 Wiki 与源码来源。这是非官方学习资料，未复制固件代码。
+
+## 阅读与开发
+
+直接用现代浏览器打开 `index.html` 即可离线阅读。正文、样式和搜索均不请求外部服务；官方链接需联网。
+
+也可以使用 Node.js 20+ 启动预览，无需安装依赖：
+
+```bash
+npm run dev
+```
+
+默认地址：`http://127.0.0.1:4173`。支持 `--host`、`--port` 和 `--strictPort` 参数，端口占用时直接失败：
+
+```bash
+npm run dev -- --host 0.0.0.0 --port 4173 --strictPort
+npm test
+npm run build
+npm run test:sites
+npm run preview
+```
+
+构建输出在 `dist/client/`，可用于静态托管或 GitHub Pages；使用 hash 路由，刷新章节无需服务器重写。保留的 Product Design Worker 与 Sites 元数据在 `dist/server/` 和 `dist/.openai/`。
+
+## 文件结构
+
+- `index.html`：文档布局、导航与搜索对话框。
+- `src/content.js`：章节、步骤、术语和来源链接。
+- `src/core.js`：路由解析与搜索。
+- `src/app.js`：章节渲染、目录、主题与键盘操作。
+- `src/styles.css`：文档样式、移动端和打印布局。
+- `scripts/`：无依赖开发服务器与构建。
+- `tests/`：章节链接、搜索、请求处理和托管测试。
+
+## 内容维护
+
+新增章节时提供唯一 `id`、章节组、摘要、搜索关键词、小节和来源。先核对官方教程，再用 `ui_input.c`、`ui_layer.c`、`ui.c` 确认涉及页面上下文的操作。修改教程时同步检查按键速查。
+
+文案只保留操作、结果和必要提示；使用机身英文标签并给出中文含义。保持目录—正文—本页目录结构，不加入营销首屏、学习积分或装饰性硬件图。
+
+## 版本管理
+
+远端：<https://github.com/itoyohane/felucca-learning-web>，主分支为 `main`。更改后运行测试和构建，再提交并推送；同步前先拉取远端历史，避免覆盖他人的修改。仓库包含自动验证工作流。
+
+## 验证范围
+
+自动检查覆盖数据结构、全部内部链接、搜索结果、静态资源和托管 Worker。当前环境没有可用浏览器，且启动预览端口返回 EPERM；无法确认真实渲染、移动端交互或视觉效果。截图环节已按用户要求跳过，见 `design-qa.md`。
