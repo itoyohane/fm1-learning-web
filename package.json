@@ -1,0 +1,14 @@
+{
+  "name": "felucca-learning-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "build": "node scripts/build.mjs && node scripts/prepare-sites-build.mjs",
+    "preview": "node scripts/dev-server.mjs --dist",
+    "test": "node --test tests/manual.test.mjs",
+    "test:sites": "node --test tests/sites-worker.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
