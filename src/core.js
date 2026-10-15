@@ -2,13 +2,28 @@
   const segmenter = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('zh-CN', { granularity: 'word' }) : null;
   let tokenCacheText;
   let tokenCacheValue = [];
-  function parseRoute(hash) {
+  function parseRoute(hash, defaultFirmware = 'felucca') {
     try {
       const parts = decodeURIComponent(hash.replace(/^#\/?/, '')).split('/');
-      return { pageId: parts[0] || 'quick-start', sectionId: parts[1] || '' };
+      if (!parts[0]) return { firmwareId: defaultFirmware, pageId: 'quick-start', sectionId: '' };
+      if (['felucca', 'official'].includes(parts[0]) || parts.length > 2) {
+        return { firmwareId: parts[0], pageId: parts[1] || 'quick-start', sectionId: parts[2] || '' };
+      }
+      // Existing shared links always refer to Felucca, even with a saved stock-firmware preference.
+      return { firmwareId: 'felucca', pageId: parts[0], sectionId: parts[1] || '' };
     } catch {
-      return { pageId: 'not-found', sectionId: '' };
+      return { firmwareId: defaultFirmware, pageId: 'not-found', sectionId: '' };
     }
+  }
+  function formatRoute(firmwareId, pageId = 'quick-start', sectionId = '') {
+    return '#/' + [firmwareId, pageId, ...(sectionId ? [sectionId] : [])].map(encodeURIComponent).join('/');
+  }
+  function firmwareDestination(firmwareId, current, pages, savedHash) {
+    const saved = savedHash ? parseRoute(savedHash) : null;
+    const candidate = saved?.firmwareId === firmwareId ? saved : current;
+    const page = pages.find((item) => item.id === candidate?.pageId) || pages[0];
+    const sectionId = page.sections.some((item) => item.id === candidate?.sectionId) ? candidate.sectionId : '';
+    return formatRoute(firmwareId, page.id, sectionId);
   }
   function plainText(html) {
     return html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
@@ -93,5 +108,5 @@
     return { id: section.id, fraction: Math.min(1, Math.max(0, (viewportTop - section.top) / Math.max(1, section.height))) };
   }
   function isComposing(event) { return Boolean(event.isComposing || event.keyCode === 229); }
-  window.FeluccaCore = Object.freeze({ parseRoute, plainText, normalize, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing });
+  window.FeluccaCore = Object.freeze({ parseRoute, formatRoute, firmwareDestination, plainText, normalize, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing });
 })();

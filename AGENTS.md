@@ -11,3 +11,5 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 ## Project preferences
 
 Preserve the concise documentation layout. Keep the complete manual and interface available in Chinese and English, with identical chapter/section IDs and the reader's position preserved on language changes. Give functional buttons and key labels restrained tactile styling; respect reduced-motion settings. Search must support both languages, IME composition, keyboard selection, and reliable focus restoration. The user authorized proceeding without screenshots when the environment cannot capture them; document the verification limit accurately.
+
+Offer only Felucca and official FM-1 firmware guides for now. Preserve the existing design when extending firmware selection. Keep navigation, search, control instructions, and sources scoped to the selected firmware. Use the supplied `../FM-1-manual.pdf` for stock instructions; cite PDF page numbers and distinguish the manual's revision date from a firmware version. Keep legacy Felucca links working.

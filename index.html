@@ -3,13 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Felucca 固件的 FM-1 中文学习手册。快速开始、面板操作、音色、录音、多轨、保存与按键速查。" />
+    <meta name="description" content="FM-1 中英文学习手册。选择 Felucca 或官方固件，查阅面板操作、音色、音序、保存与连接。" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
-    <title>快速开始 · Felucca 学习手册</title>
+    <title>快速开始 · FM-1 学习手册</title>
     <link rel="stylesheet" href="./src/styles.css" />
     <script src="./src/content.js" defer></script>
     <script src="./src/content-en.js" defer></script>
+    <script src="./src/content-official.js" defer></script>
+    <script src="./src/firmwares.js" defer></script>
     <script src="./src/locales.js" defer></script>
     <script src="./src/core.js" defer></script>
     <script src="./src/app.js" defer></script>
@@ -18,11 +20,11 @@
     <a class="skip-link" href="#main-content" data-i18n="skip">跳转到正文</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="#/quick-start" aria-label="Felucca 学习手册首页">Felucca <span>Docs</span></a>
-        <span class="version">v1.6.1</span>
+        <a class="brand" href="#/felucca/quick-start" aria-label="FM-1 学习手册首页">FM-1 <span>Docs</span></a>
+        <span id="firmware-badge" class="version">Felucca v1.6.1</span>
         <button id="open-search" class="search-trigger" type="button" aria-haspopup="dialog" aria-controls="search-dialog"><span class="search-label" data-i18n="searchShort">搜索</span><kbd id="search-shortcut">Ctrl K</kbd></button>
         <div class="header-actions">
-          <a href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener noreferrer" data-i18n="firmware">固件源码</a>
+          <a id="firmware-source" href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener noreferrer">固件源码</a>
           <label class="language-control"><span class="sr-only" data-i18n="language">阅读语言</span><select id="language-select"><option value="zh">中文</option><option value="en">English</option></select></label>
           <button id="theme-toggle" class="text-button" type="button" aria-pressed="false">深色模式</button>
         </div>
@@ -30,25 +32,26 @@
       <nav class="top-nav" aria-label="主导航">
         <div class="top-nav-inner">
           <button id="menu-toggle" class="text-button mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar" data-i18n="menu">目录</button>
-          <a href="#/quick-start" data-tab="manual" data-i18n="manual">学习手册</a>
-          <a href="#/shortcuts" data-tab="shortcuts" data-i18n="shortcuts">按键速查</a>
-          <a href="#/sources" data-tab="sources" data-i18n="sources">官方资料</a>
-          <span class="nav-context" data-i18n="context">M-VAVE FM-1 · 中文</span>
+          <a href="#/felucca/quick-start" data-tab="manual" data-i18n="manual">学习手册</a>
+          <a href="#/felucca/shortcuts" data-tab="shortcuts" data-i18n="shortcuts">按键速查</a>
+          <a href="#/felucca/sources" data-tab="sources" data-i18n="sources">资料来源</a>
+          <span id="firmware-context" class="nav-context">Felucca · 中文</span>
         </div>
       </nav>
     </header>
     <div id="sidebar-backdrop" hidden></div>
     <div class="docs-layout">
       <aside id="sidebar" class="sidebar" aria-label="章节目录">
-        <div class="sidebar-heading">FM-1 / Felucca <button id="close-menu" class="text-button" type="button" data-i18n="close">关闭</button></div>
+        <div class="sidebar-heading"><span data-i18n="firmwareGuide">固件教程</span><button id="close-menu" class="text-button" type="button" data-i18n="close">关闭</button></div>
+        <label class="firmware-control" for="firmware-select"><span class="sr-only" data-i18n="firmwareGuide">固件教程</span><select id="firmware-select"><option value="felucca">Felucca</option><option value="official">官方固件</option></select></label>
         <nav id="chapter-nav" aria-label="学习章节"></nav>
-        <div class="sidebar-note"><span data-i18n="sidebarNote">非官方学习手册</span><br /><span data-i18n="baseline">内容基线：Felucca v1.6.1</span></div>
+        <div class="sidebar-note"><span data-i18n="sidebarNote">非官方学习手册</span><br /><span id="firmware-baseline">内容基线：Felucca v1.6.1</span></div>
       </aside>
       <main id="main-content" tabindex="-1">
         <div id="breadcrumb" class="breadcrumb"></div>
         <article id="article"></article>
         <nav id="page-navigation" class="page-navigation" aria-label="相邻章节"></nav>
-        <footer class="article-footer" data-i18n="checked">核对日期：2026-10-15 · M-VAVE FM-1 / Felucca v1.6.1</footer>
+        <footer id="firmware-checked" class="article-footer">核对日期：2026-10-15 · M-VAVE FM-1 / Felucca</footer>
       </main>
       <aside class="page-outline" aria-label="本页目录">
         <p class="outline-title" data-i18n="outline">本页内容</p>

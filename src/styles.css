@@ -62,7 +62,10 @@ button:active, .page-navigation a:active { transform: translateY(1px); }
 .mobile-menu-toggle { display: none; }
 .docs-layout { display: grid; grid-template-columns: 244px minmax(0, 1fr) 190px; column-gap: 58px; max-width: 1440px; padding: 0 40px; margin: 0 auto; }
 .sidebar { align-self: start; position: sticky; top: var(--header-height); max-height: calc(100dvh - var(--header-height)); overflow-y: auto; padding: 31px 24px 28px 0; scrollbar-width: thin; }
-.sidebar-heading { margin: 0 0 26px 10px; color: var(--text); font-size: 13px; font-weight: 500; }
+.sidebar-heading { margin: 0 0 8px 10px; color: var(--text); font-size: 13px; font-weight: 500; }
+.firmware-control { display: block; margin: 0 0 24px 10px; }
+.firmware-control select { width: 100%; min-height: 44px; padding: 8px 10px; color: var(--text); background: var(--key-face); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 1px 0 var(--key-edge), inset 0 1px 0 var(--key-shine); font: inherit; font-size: 13px; cursor: pointer; }
+.firmware-control select:hover { border-color: var(--muted); }
 #close-menu { display: none; }
 .nav-group { margin: 0 0 23px; }
 .nav-group-title { margin: 0 10px 7px; color: var(--text); font-size: 12px; font-weight: 550; }

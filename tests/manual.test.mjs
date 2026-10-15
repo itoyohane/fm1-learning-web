@@ -8,10 +8,11 @@ import { serveResource } from '../scripts/dev-server.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const context = vm.createContext({ window: {} });
-for (const file of ['content.js', 'content-en.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
+for (const file of ['content.js', 'content-en.js', 'content-official.js', 'firmwares.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
 const { pages, sources } = context.window.FeluccaManual;
 const locales = context.window.FeluccaLocales;
-const { parseRoute, buildSearchIndex, search, excerpt, tokenize, groupResults, moveSelection, readingAnchor, isComposing } = context.window.FeluccaCore;
+const { parseRoute, formatRoute, firmwareDestination, buildSearchIndex, search, excerpt, tokenize, groupResults, moveSelection, readingAnchor, isComposing } = context.window.FeluccaCore;
+const firmwares = context.window.FM1Firmwares;
 const index = buildSearchIndex(pages);
 const byId = new Map(pages.map((page) => [page.id, page]));
 
@@ -99,7 +100,7 @@ test('preview handler serves HTML, CSS and scripts without exposing private file
   const head = await serveResource(new Request('http://local.preview/src/content.js', { method: 'HEAD' }));
   assert.equal(head.status, 200);
   assert.equal(await head.text(), '');
-  for (const file of ['content-en.js', 'locales.js']) {
+  for (const file of ['content-en.js', 'content-official.js', 'firmwares.js', 'locales.js']) {
     const response = await serveResource(new Request('http://local.preview/src/' + file));
     assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /javascript/);
@@ -204,4 +205,102 @@ test('query normalization is repeatable and punctuation cannot become a regular 
   assert.ok(!tokenize('保存工程').includes('mutated'));
   assert.equal(tokenize('.*[()]').length, 0);
   assert.equal(excerpt('Start here. Save the project in slot A.', 'save project'), 'Start here. Save the project in slot A.');
+});
+
+test('firmware-qualified links override saved preferences and legacy links stay on Felucca', () => {
+  for (const id of ['official', 'felucca']) {
+    const route = parseRoute(formatRoute(id, 'saving', 'save-preset'), id === 'official' ? 'felucca' : 'official');
+    assert.equal(route.firmwareId, id);
+    assert.equal(route.pageId, 'saving');
+    assert.equal(route.sectionId, 'save-preset');
+  }
+  assert.equal(parseRoute('', 'official').firmwareId, 'official');
+  assert.equal(parseRoute('#/saving/save-project', 'official').firmwareId, 'felucca');
+  assert.equal(parseRoute('#/quick-start', 'official').firmwareId, 'felucca');
+  assert.equal(parseRoute('#/unsupported/quick-start/first-sound').firmwareId, 'unsupported');
+  assert.equal(Object.hasOwn(firmwares, parseRoute('#/__proto__/quick-start/first-sound').firmwareId), false);
+  assert.equal(parseRoute('#/official/%E0%A4%A', 'official').pageId, 'not-found');
+});
+
+test('firmware switching restores a valid previous location or a matching chapter', () => {
+  const official = firmwares.official.locales.zh.pages;
+  const current = parseRoute('#/felucca/controls/gestures');
+  assert.equal(firmwareDestination('official', current, official, null), '#/official/controls/gestures');
+  assert.equal(firmwareDestination('official', current, official, '#/official/effects/order'), '#/official/effects/order');
+  assert.equal(firmwareDestination('official', current, official, '#/official/effects/removed'), '#/official/effects');
+  assert.equal(firmwareDestination('official', current, official, '#/official/removed/removed'), '#/official/quick-start');
+  assert.equal(firmwareDestination('official', current, official, '#/felucca/drums'), '#/official/controls/gestures');
+  assert.equal(firmwareDestination('official', parseRoute('#/felucca/live-recording/record'), official, null), '#/official/quick-start');
+});
+
+test('only Felucca and stock guides are offered, with complete translated chapters and valid sources', () => {
+  assert.deepEqual(Object.keys(firmwares).sort(), ['felucca', 'official']);
+  for (const [firmwareId, firmware] of Object.entries(firmwares)) {
+    assert.equal(firmware.id, firmwareId);
+    const zh = firmware.locales.zh;
+    const en = firmware.locales.en;
+    assert.equal(JSON.stringify(zh.pages.map((page) => page.id)), JSON.stringify(en.pages.map((page) => page.id)));
+    for (const language of ['zh', 'en']) {
+      const manual = firmware.locales[language];
+      const lookup = new Map(manual.pages.map((page) => [page.id, page]));
+      assert.equal(lookup.size, manual.pages.length);
+      for (const [i, page] of manual.pages.entries()) {
+        assert.equal(JSON.stringify(page.sections.map((section) => section.id)), JSON.stringify(zh.pages[i].sections.map((section) => section.id)));
+        assert.equal(new Set(page.sections.map((section) => section.id)).size, page.sections.length);
+        assert.ok(page.sources.length);
+        for (const id of page.sources) {
+          const source = manual.sources[id];
+          assert.ok(source?.title, `${firmwareId}/${page.id}/${id}`);
+          if (firmwareId === 'official') {
+            assert.equal(source.document, 'FM-1-manual.pdf');
+            assert.equal(source.url, undefined);
+            assert.ok(source.pages.every((number) => Number.isInteger(number) && number >= 1 && number <= 31));
+          } else assert.match(source.url, /^https:\/\//);
+        }
+        for (const section of page.sections) {
+          assert.match(section.id, /^[a-z][a-z0-9-]+$/);
+          assert.ok(section.body.length > 30);
+          assert.doesNotMatch(section.body, /<script|onerror=|onclick=|javascript:/i);
+          if (language === 'en') for (const text of [page.title, page.summary, section.title, section.body]) assert.doesNotMatch(text, /[\u3400-\u9fff]/u);
+          for (const match of section.body.matchAll(/href="(#\/[^\"]+)"/g)) {
+            const route = parseRoute(match[1]);
+            const target = lookup.get(route.pageId);
+            assert.equal(route.firmwareId, firmwareId, match[1]);
+            assert.ok(target, match[1]);
+            if (route.sectionId) assert.ok(target.sections.some((item) => item.id === route.sectionId), match[1]);
+          }
+        }
+      }
+      const searchIndex = buildSearchIndex(manual.pages, firmware.locales[language === 'zh' ? 'en' : 'zh'].pages);
+      for (const suggestion of firmware.suggestions) assert.ok(searchIndex.some((item) => `${item.pageId}/${item.sectionId}` === suggestion), suggestion);
+    }
+  }
+});
+
+test('stock bilingual search resolves its own tasks without exposing Felucca-only chapters', () => {
+  for (const language of ['zh', 'en']) {
+    const manual = firmwares.official.locales[language];
+    const other = firmwares.official.locales[language === 'zh' ? 'en' : 'zh'];
+    const stockIndex = buildSearchIndex(manual.pages, other.pages);
+    for (const [query, pageId, sectionId] of [['保存当前修改', 'saving', 'save-preset'], ['Save edits', 'saving', 'save-preset'], ['步进音序', 'step-recording', ''], ['BLE MIDI', 'midi', 'connect'], ['长音', 'step-recording', 'long-rest']]) {
+      assert.ok(search(stockIndex, query).some((result) => result.pageId === pageId && (!sectionId || result.sectionId === sectionId)), `${language}: ${query}`);
+    }
+    assert.equal(search(stockIndex, 'CHORD ENTRY').length, 0);
+    assert.ok(search(stockIndex, 'REC').every((result) => !['live-recording', 'drums', 'tracks'].includes(result.pageId)));
+    assert.ok(!stockIndex.some((item) => item.sectionId === 'save-project'));
+  }
+});
+
+test('stock instructions preserve key differences established by the supplied manual', () => {
+  const stock = new Map(firmwares.official.locales.zh.pages.map((page) => [page.id, page]));
+  const body = (pageId, sectionId) => stock.get(pageId).sections.find((item) => item.id === sectionId).body;
+  assert.match(body('controls', 'knobs'), /32 种 FM 算法/);
+  assert.match(body('saving', 'save-preset'), /长按/);
+  assert.match(body('step-recording', 'record'), /先开 SEQ/);
+  assert.match(body('step-recording', 'pages'), /PRESETS 无效/);
+  assert.match(body('settings', 'reset'), /上一次导入/);
+  assert.match(body('midi', 'audio'), /没有确认 USB 音频/);
+  assert.match(body('modulation', 'envelope'), /再次按 ENV 会关闭/);
+  assert.equal(firmwares.official.locales.zh.manualRevision, '2026-08-10');
+  assert.equal(firmwares.official.locales.zh.version, undefined);
 });

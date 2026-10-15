@@ -1,7 +1,7 @@
 (() => {
   'use strict';
-  const locales = window.FeluccaLocales;
-  const { parseRoute, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing } = window.FeluccaCore;
+  const firmwares = window.FM1Firmwares;
+  const { parseRoute, formatRoute, firmwareDestination, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing } = window.FeluccaCore;
   const $ = (id) => document.getElementById(id);
   const dialog = $('search-dialog');
   const input = $('search-input');
@@ -10,10 +10,12 @@
     set(key, value) { try { localStorage.setItem(key, value); } catch { /* Offline/private browsing may restrict storage. */ } },
   };
   let language = storage.get('felucca-language') === 'en' ? 'en' : 'zh';
+  let firmwareId = Object.hasOwn(firmwares, storage.get('fm1-firmware')) ? storage.get('fm1-firmware') : 'felucca';
   let theme = storage.get('felucca-theme') === 'dark' ? 'dark' : 'light';
   let pages, sources, byId, searchIndex;
   let currentPage = '';
   let renderedLanguage = '';
+  let renderedFirmware = '';
   let observer;
   let results = [];
   let selectedResult = -1;
@@ -23,16 +25,18 @@
   let closingForNavigation = false;
   let pointerStartedOutside = false;
 
-  function t(key) { return window.FeluccaUI[language][key]; }
+  function firmware() { return firmwares[firmwareId]; }
+  function t(key) { return window.FeluccaUI[language][key].replace('{firmware}', firmware().labels[language]); }
   function element(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
   }
-  function routeHref(pageId, sectionId = '') { return `#/${pageId}${sectionId ? `/${sectionId}` : ''}`; }
+  function routeHref(pageId, sectionId = '') { return formatRoute(firmwareId, pageId, sectionId); }
   function resultKey(result) { return result ? routeHref(result.pageId, result.sectionId) : ''; }
   function setLocaleData() {
+    const locales = firmware().locales;
     ({ pages, sources } = locales[language]);
     byId = new Map(pages.map((page) => [page.id, page]));
     searchIndex = buildSearchIndex(pages, locales[language === 'zh' ? 'en' : 'zh'].pages);
@@ -52,6 +56,24 @@
     document.querySelector('.page-outline').setAttribute('aria-label', t('outline'));
     for (const [id, key] of [['sidebar', 'chapterNav'], ['chapter-nav', 'chapters'], ['page-navigation', 'adjacent'], ['table-of-contents', 'sections'], ['search-results', 'resultList']]) $(id).setAttribute('aria-label', t(key));
     $('language-select').value = language;
+    const select = $('firmware-select');
+    select.replaceChildren(...Object.values(firmwares).map((item) => {
+      const option = element('option', '', item.labels[language]);
+      option.value = item.id;
+      return option;
+    }));
+    select.value = firmwareId;
+    $('firmware-badge').textContent = firmware().badge;
+    $('firmware-context').textContent = t('context');
+    $('firmware-baseline').textContent = firmware().baselines[language];
+    $('firmware-checked').textContent = t('checked');
+    const source = $('firmware-source');
+    source.textContent = firmware().sourceLabels[language];
+    source.href = firmware().sourceUrl;
+    if (firmware().sourceUrl.startsWith('#/')) source.removeAttribute('target');
+    else source.target = '_blank';
+    document.querySelector('.brand').href = routeHref('quick-start');
+    document.querySelectorAll('[data-tab]').forEach((anchor) => { anchor.href = routeHref(anchor.dataset.tab === 'manual' ? 'quick-start' : anchor.dataset.tab); });
     $('open-search').setAttribute('aria-label', t('search'));
     $('open-search').setAttribute('aria-keyshortcuts', 'Control+k Meta+k');
     input.placeholder = t('searchPlaceholder');
@@ -117,6 +139,11 @@
       const body = element('div', 'section-body');
       // Only trusted, locally authored chapter HTML enters this sink.
       body.innerHTML = section.body;
+      // Legacy authored Felucca links are rendered with an explicit firmware namespace.
+      body.querySelectorAll('a[href^="#/"]').forEach((anchor) => {
+        const route = parseRoute(anchor.getAttribute('href'));
+        anchor.href = formatRoute(firmwareId, route.pageId, route.sectionId);
+      });
       container.append(heading, body);
       article.append(container);
     }
@@ -126,11 +153,13 @@
     for (const sourceId of page.sources) {
       const source = sources[sourceId];
       const item = element('li');
-      const anchor = element('a', '', source.title);
-      anchor.href = source.url;
-      anchor.target = '_blank';
-      anchor.rel = 'noopener noreferrer';
-      item.append(anchor);
+      if (source.url) {
+        const anchor = element('a', '', source.title);
+        anchor.href = source.url;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        item.append(anchor);
+      } else item.textContent = source.title;
       sourceList.append(item);
     }
     reference.append(sourceList);
@@ -150,9 +179,23 @@
     }
   }
   function renderRoute({ initial = false, scroll = true, focus = true } = {}) {
-    const { pageId, sectionId } = parseRoute(location.hash);
-    const page = byId.get(pageId);
-    const changed = currentPage !== pageId || renderedLanguage !== language;
+    const route = parseRoute(location.hash, firmwareId);
+    const knownFirmware = Object.hasOwn(firmwares, route.firmwareId);
+    // Give the initial history entry an identity before a firmware switch changes preferences.
+    if (!location.hash || location.hash === '#/') history.replaceState(null, '', formatRoute(route.firmwareId, route.pageId, route.sectionId));
+    if (knownFirmware && route.firmwareId !== firmwareId) {
+      firmwareId = route.firmwareId;
+      storage.set('fm1-firmware', firmwareId);
+      setLocaleData();
+      renderUI();
+      renderChapters();
+      $('sidebar').scrollTop = 0;
+      if (dialog.open) updateSearch();
+    }
+    const { pageId, sectionId } = route;
+    const page = knownFirmware ? byId.get(pageId) : null;
+    const changed = currentPage !== pageId || renderedLanguage !== language || renderedFirmware !== route.firmwareId;
+    if (page) storage.set(`fm1-last-${firmwareId}`, routeHref(pageId, sectionId));
     if (!page) {
       observer?.disconnect();
       $('article').replaceChildren(element('h1', '', t('notFound')), element('p', '', t('notFoundHelp')));
@@ -161,8 +204,8 @@
       $('page-navigation').replaceChildren();
       document.title = `${t('notFound')} · ${t('title')}`;
     } else if (changed) {
-      document.title = `${page.title} · ${t('title')}`;
-      $('breadcrumb').textContent = `${page.group} / ${page.title}`;
+      document.title = `${page.title} · ${firmware().labels[language]} · ${t('title')}`;
+      $('breadcrumb').textContent = `${firmware().labels[language]} / ${page.group} / ${page.title}`;
       renderArticle(page);
       renderPageNavigation(page);
       const outline = $('table-of-contents');
@@ -178,8 +221,9 @@
     }
     currentPage = pageId;
     renderedLanguage = language;
+    renderedFirmware = route.firmwareId;
     document.querySelectorAll('[data-page]').forEach((anchor) => {
-      if (anchor.dataset.page === pageId) anchor.setAttribute('aria-current', 'page');
+      if (page && anchor.dataset.page === pageId) anchor.setAttribute('aria-current', 'page');
       else anchor.removeAttribute('aria-current');
     });
     document.querySelectorAll('[data-tab]').forEach((anchor) => {
@@ -197,7 +241,7 @@
     });
   }
   function switchLanguage(nextLanguage) {
-    if (!locales[nextLanguage] || nextLanguage === language) return;
+    if (!firmware().locales[nextLanguage] || nextLanguage === language) return;
     const viewportTop = document.querySelector('.site-header').getBoundingClientRect().bottom + 24;
     const metrics = [...$('article').querySelectorAll('.article-section')].map((node) => ({ id: node.id, ...pickRect(node) }));
     const anchor = readingAnchor(metrics, viewportTop);
@@ -219,6 +263,12 @@
       } else window.scrollTo({ top: scrollTop, behavior: 'instant' });
     });
     if (dialog.open) updateSearch();
+  }
+  function switchFirmware(nextFirmware) {
+    if (!Object.hasOwn(firmwares, nextFirmware) || nextFirmware === firmwareId) return;
+    const destination = firmwareDestination(nextFirmware, parseRoute(location.hash, firmwareId), firmwares[nextFirmware].locales[language].pages, storage.get(`fm1-last-${nextFirmware}`));
+    // Hash history makes Back/Forward restore both the guide and its chapter.
+    location.hash = destination;
   }
   function pickRect(node) {
     const rect = node.getBoundingClientRect();
@@ -256,7 +306,7 @@
     let matches;
     if (searching) matches = search(searchIndex, query);
     else {
-      const suggested = ['quick-start/first-sound', 'controls/gestures', 'live-recording/record', 'saving/save-project', 'shortcuts/buttons'];
+      const suggested = firmware().suggestions;
       matches = suggested.map((key) => searchIndex.find((item) => `${item.pageId}/${item.sectionId}` === key)).filter(Boolean);
     }
     const groups = groupResults(matches);
@@ -344,6 +394,7 @@
     applyTheme();
   });
   $('language-select').addEventListener('change', (event) => switchLanguage(event.target.value));
+  $('firmware-select').addEventListener('change', (event) => switchFirmware(event.target.value));
   $('open-search').addEventListener('click', openSearch);
   $('close-search').addEventListener('click', () => closeSearch());
   $('clear-search').addEventListener('click', () => { input.value = ''; updateSearch(); input.focus(); });
@@ -399,7 +450,7 @@
     if (shortcut || (event.key === '/' && !typing && !dialog.open && !event.ctrlKey && !event.metaKey && !event.altKey)) { event.preventDefault(); openSearch(); }
     if (event.key === 'Escape' && document.body.classList.contains('menu-open')) { setMenu(false); $('menu-toggle').focus(); }
     if (event.key === 'Tab' && document.body.classList.contains('menu-open')) {
-      const nodes = [...$('sidebar').querySelectorAll('a, button')];
+      const nodes = [...$('sidebar').querySelectorAll('a, button, select')];
       if (event.shiftKey && document.activeElement === nodes[0]) { event.preventDefault(); nodes[nodes.length - 1].focus(); }
       else if (!event.shiftKey && document.activeElement === nodes[nodes.length - 1]) { event.preventDefault(); nodes[0].focus(); }
     }
