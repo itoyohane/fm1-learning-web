@@ -63,7 +63,6 @@
       return option;
     }));
     select.value = firmwareId;
-    $('firmware-badge').textContent = firmware().badge;
     $('firmware-context').textContent = t('context');
     $('firmware-baseline').textContent = firmware().baselines[language];
     $('firmware-checked').textContent = t('checked');
