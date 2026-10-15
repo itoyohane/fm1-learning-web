@@ -67,10 +67,13 @@
     $('firmware-baseline').textContent = firmware().baselines[language];
     $('firmware-checked').textContent = t('checked');
     const source = $('firmware-source');
-    source.textContent = firmware().sourceLabels[language];
+    const sourceLabel = firmware().sourceLabels[language];
+    source.setAttribute('aria-label', sourceLabel);
+    source.title = sourceLabel;
     source.href = firmware().sourceUrl;
-    if (firmware().sourceUrl.startsWith('#/')) source.removeAttribute('target');
-    else source.target = '_blank';
+    $('github-source-icon').toggleAttribute('hidden', firmware().sourceIcon !== 'github');
+    $('official-source-icon').hidden = firmware().sourceIcon !== 'official';
+    if (firmware().sourceIcon === 'official' && !$('official-logo').getAttribute('src')) $('official-logo').src = firmware().sourceIconUrl;
     document.querySelector('.brand').href = routeHref('quick-start');
     document.querySelectorAll('[data-tab]').forEach((anchor) => { anchor.href = routeHref(anchor.dataset.tab === 'manual' ? 'quick-start' : anchor.dataset.tab); });
     $('open-search').setAttribute('aria-label', t('search'));
@@ -146,23 +149,23 @@
       container.append(heading, body);
       article.append(container);
     }
-    const reference = element('section', 'source-references');
-    reference.append(element('h2', '', t('pageSources')));
-    const sourceList = element('ul');
-    for (const sourceId of page.sources) {
-      const source = sources[sourceId];
-      const item = element('li');
-      if (source.url) {
+    if (firmware().showPageSources) {
+      const reference = element('section', 'source-references');
+      reference.append(element('h2', '', t('pageSources')));
+      const sourceList = element('ul');
+      for (const sourceId of page.sources) {
+        const source = sources[sourceId];
+        const item = element('li');
         const anchor = element('a', '', source.title);
         anchor.href = source.url;
         anchor.target = '_blank';
         anchor.rel = 'noopener noreferrer';
         item.append(anchor);
-      } else item.textContent = source.title;
-      sourceList.append(item);
+        sourceList.append(item);
+      }
+      reference.append(sourceList);
+      article.append(reference);
     }
-    reference.append(sourceList);
-    article.append(reference);
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) article.animate?.([{ opacity: 0.65 }, { opacity: 1 }], { duration: 140, easing: 'ease-out' });
   }
   function renderPageNavigation(page) {
@@ -394,6 +397,8 @@
   });
   $('language-select').addEventListener('change', (event) => switchLanguage(event.target.value));
   $('firmware-select').addEventListener('change', (event) => switchFirmware(event.target.value));
+  $('official-logo').addEventListener('load', () => { $('official-logo').hidden = false; $('official-icon-fallback').hidden = true; });
+  $('official-logo').addEventListener('error', () => { $('official-logo').hidden = true; $('official-icon-fallback').hidden = false; });
   $('open-search').addEventListener('click', openSearch);
   $('close-search').addEventListener('click', () => closeSearch());
   $('clear-search').addEventListener('click', () => { input.value = ''; updateSearch(); input.focus(); });
@@ -440,7 +445,6 @@
   });
   $('menu-toggle').addEventListener('click', () => setMenu($('menu-toggle').getAttribute('aria-expanded') !== 'true'));
   for (const id of ['close-menu', 'sidebar-backdrop']) $(id).addEventListener('click', () => { setMenu(false); $('menu-toggle').focus(); });
-  $('print-page').addEventListener('click', () => window.print());
   document.querySelector('.skip-link').addEventListener('click', (event) => { event.preventDefault(); $('main-content').focus(); });
   document.addEventListener('keydown', (event) => {
     if (isComposing(event) || composing) return;

@@ -18,6 +18,8 @@ The v0.3 iteration preserves the documentation layout and adds a native firmware
 
 Automated v0.3 checks cover both guides in both languages, source page references, translated section parity, cross-links, firmware-qualified and legacy routes, destination restoration, default search suggestions, search isolation, and stock control differences. Browser Back/Forward, localStorage persistence, menu focus, and rendered appearance still require real-browser verification; route-helper tests do not establish that those interactions pass.
 
+The header search now uses a centered grid column; on mobile it occupies a centered second row. The larger search dialog uses fixed viewport positioning and a stable height, with scrolling confined to results or the empty-state panel. An accessible icon link replaces the firmware text link: GitHub for Felucca, the site's M-VAVE mark for stock firmware, with an M fallback if the external image cannot load. Print-page controls and stock per-chapter source footers are removed. Stock source records and its sources chapter remain available. These layout changes have not been inspected in a browser.
+
 ## Verification limits
 
 Reference text was read through web access. No browser or browser-capture tool is available, so no rendered screenshots, paired visual comparison, browser console review or real interaction checks were performed. This report does not claim visual QA passed. Automated checks are listed in README.md and can run without network access.
