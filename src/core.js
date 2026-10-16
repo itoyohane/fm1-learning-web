@@ -6,7 +6,7 @@
     try {
       const parts = decodeURIComponent(hash.replace(/^#\/?/, '')).split('/');
       if (!parts[0]) return { firmwareId: defaultFirmware, pageId: 'quick-start', sectionId: '' };
-      if (['felucca', 'official'].includes(parts[0]) || parts.length > 2) {
+      if (Object.hasOwn(window.FM1Firmwares || {}, parts[0]) || ['felucca', 'sloop', 'official'].includes(parts[0]) || parts.length > 2) {
         return { firmwareId: parts[0], pageId: parts[1] || 'quick-start', sectionId: parts[2] || '' };
       }
       // Existing shared links always refer to Felucca, even with a saved stock-firmware preference.

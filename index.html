@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="FM-1 中英文学习手册。选择 Felucca 或官方固件，查阅面板操作、音色、音序、保存与连接。" />
+    <meta name="description" content="FM-1 中英文学习手册。选择 Felucca、SLOOP 或官方固件，查阅面板操作、音色、音序、保存与连接。" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
     <title>快速开始 · FM-1 学习手册</title>
@@ -11,6 +11,7 @@
     <script src="./src/content.js" defer></script>
     <script src="./src/content-en.js" defer></script>
     <script src="./src/content-official.js" defer></script>
+    <script src="./src/content-sloop.js" defer></script>
     <script src="./src/firmwares.js" defer></script>
     <script src="./src/locales.js" defer></script>
     <script src="./src/core.js" defer></script>
@@ -20,7 +21,10 @@
     <a class="skip-link" href="#main-content" data-i18n="skip">跳转到正文</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="#/felucca/quick-start" aria-label="FM-1 学习手册首页">FM-1 <span>Docs</span></a>
+        <a class="brand" href="#/felucca/quick-start" aria-label="FM-1 学习手册首页">
+          <svg class="brand-symbol" viewBox="0 0 36 36" width="34" height="34" fill="none" aria-hidden="true"><rect class="brand-panel" x="1" y="1" width="34" height="34" rx="6" /><path class="brand-wave" d="M7 23V13h7v10h8V13h7" /><path class="brand-ticks" d="M8 7h2m4 0h2m4 0h2m4 0h2M8 29h12" /><circle class="brand-led" cx="28" cy="29" r="1.5" /></svg>
+          <span class="brand-wordmark"><span class="brand-model">FM-1</span><span class="brand-docs">DOCS</span></span>
+        </a>
         <button id="open-search" class="search-trigger" type="button" aria-haspopup="dialog" aria-controls="search-dialog"><span class="search-label" data-i18n="searchShort">搜索</span><kbd id="search-shortcut">Ctrl K</kbd></button>
         <div class="header-actions">
           <a id="firmware-source" class="firmware-link" href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener noreferrer" aria-label="Felucca 项目仓库" title="Felucca 项目仓库">
@@ -45,7 +49,7 @@
     <div class="docs-layout">
       <aside id="sidebar" class="sidebar" aria-label="章节目录">
         <div class="sidebar-heading"><span data-i18n="firmwareGuide">固件教程</span><button id="close-menu" class="text-button" type="button" data-i18n="close">关闭</button></div>
-        <label class="firmware-control" for="firmware-select"><span class="sr-only" data-i18n="firmwareGuide">固件教程</span><select id="firmware-select"><option value="felucca">Felucca</option><option value="official">官方固件</option></select></label>
+        <label class="firmware-control" for="firmware-select"><span class="sr-only" data-i18n="firmwareGuide">固件教程</span><select id="firmware-select"><option value="felucca">Felucca</option><option value="sloop">SLOOP</option><option value="official">官方固件</option></select></label>
         <nav id="chapter-nav" aria-label="学习章节"></nav>
         <div class="sidebar-note"><span data-i18n="sidebarNote">非官方学习手册</span><br /><span id="firmware-baseline">内容基线：Felucca v1.6.1</span></div>
       </aside>

@@ -8,7 +8,7 @@ import { serveResource } from '../scripts/dev-server.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const context = vm.createContext({ window: {} });
-for (const file of ['content.js', 'content-en.js', 'content-official.js', 'firmwares.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
+for (const file of ['content.js', 'content-en.js', 'content-official.js', 'content-sloop.js', 'firmwares.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
 const { pages, sources } = context.window.FeluccaManual;
 const locales = context.window.FeluccaLocales;
 const { parseRoute, formatRoute, firmwareDestination, buildSearchIndex, search, excerpt, tokenize, groupResults, moveSelection, readingAnchor, isComposing } = context.window.FeluccaCore;
@@ -100,7 +100,7 @@ test('preview handler serves HTML, CSS and scripts without exposing private file
   const head = await serveResource(new Request('http://local.preview/src/content.js', { method: 'HEAD' }));
   assert.equal(head.status, 200);
   assert.equal(await head.text(), '');
-  for (const file of ['content-en.js', 'content-official.js', 'firmwares.js', 'locales.js']) {
+  for (const file of ['content-en.js', 'content-official.js', 'content-sloop.js', 'firmwares.js', 'locales.js']) {
     const response = await serveResource(new Request('http://local.preview/src/' + file));
     assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /javascript/);
@@ -208,7 +208,7 @@ test('query normalization is repeatable and punctuation cannot become a regular 
 });
 
 test('firmware-qualified links override saved preferences and legacy links stay on Felucca', () => {
-  for (const id of ['official', 'felucca']) {
+  for (const id of ['official', 'felucca', 'sloop']) {
     const route = parseRoute(formatRoute(id, 'saving', 'save-preset'), id === 'official' ? 'felucca' : 'official');
     assert.equal(route.firmwareId, id);
     assert.equal(route.pageId, 'saving');
@@ -220,6 +220,8 @@ test('firmware-qualified links override saved preferences and legacy links stay 
   assert.equal(parseRoute('#/unsupported/quick-start/first-sound').firmwareId, 'unsupported');
   assert.equal(Object.hasOwn(firmwares, parseRoute('#/__proto__/quick-start/first-sound').firmwareId), false);
   assert.equal(parseRoute('#/official/%E0%A4%A', 'official').pageId, 'not-found');
+  assert.equal(parseRoute('#/sloop').firmwareId, 'sloop');
+  assert.equal(parseRoute('#/sloop/quick-start', 'official').pageId, 'quick-start');
 });
 
 test('firmware switching restores a valid previous location or a matching chapter', () => {
@@ -231,10 +233,13 @@ test('firmware switching restores a valid previous location or a matching chapte
   assert.equal(firmwareDestination('official', current, official, '#/official/removed/removed'), '#/official/quick-start');
   assert.equal(firmwareDestination('official', current, official, '#/felucca/drums'), '#/official/controls/gestures');
   assert.equal(firmwareDestination('official', parseRoute('#/felucca/live-recording/record'), official, null), '#/official/quick-start');
+  const sloop = firmwares.sloop.locales.zh.pages;
+  assert.equal(firmwareDestination('sloop', current, sloop, '#/sloop/song/chain'), '#/sloop/song/chain');
+  assert.equal(firmwareDestination('sloop', current, sloop, null), '#/sloop/controls/gestures');
 });
 
-test('only Felucca and stock guides are offered, with complete translated chapters and valid sources', () => {
-  assert.deepEqual(Object.keys(firmwares).sort(), ['felucca', 'official']);
+test('Felucca, SLOOP and stock guides provide complete translations, links and scoped sources', () => {
+  assert.deepEqual(Object.keys(firmwares).sort(), ['felucca', 'official', 'sloop']);
   for (const [firmwareId, firmware] of Object.entries(firmwares)) {
     assert.equal(firmware.id, firmwareId);
     const zh = firmware.locales.zh;
@@ -275,6 +280,37 @@ test('only Felucca and stock guides are offered, with complete translated chapte
       for (const suggestion of firmware.suggestions) assert.ok(searchIndex.some((item) => `${item.pageId}/${item.sectionId}` === suggestion), suggestion);
     }
   }
+});
+
+test('SLOOP search finds its own recording and performance instructions in both languages', () => {
+  for (const language of ['zh', 'en']) {
+    const manual = firmwares.sloop.locales[language];
+    const alternate = firmwares.sloop.locales[language === 'zh' ? 'en' : 'zh'];
+    const sloopIndex = buildSearchIndex(manual.pages, alternate.pages);
+    for (const [query, pageId, sectionId] of [
+      ['自由录音', 'live-recording', 'free-take'], ['free take', 'live-recording', 'free-take'],
+      ['参数锁', 'step-recording', 'locks'], ['MIDI LEARN', 'midi', 'learn'],
+      ['USB 音频', 'midi', 'usb-audio'], ['保存四轨循环', 'saving', 'save-project'],
+    ]) assert.ok(search(sloopIndex, query).some((result) => result.pageId === pageId && result.sectionId === sectionId), `${language}: ${query}`);
+    assert.equal(search(sloopIndex, '双击保持').length, 0);
+    assert.equal(search(sloopIndex, 'hugelton').length, 0);
+    assert.ok(Object.values(manual.sources).every((source) => source.url.includes('isod89')));
+  }
+});
+
+test('SLOOP retains verified 2.6 operations instead of inheriting Felucca or 2.7 controls', () => {
+  const sloop = firmwares.sloop.locales.zh;
+  const body = (pageId, sectionId) => sloop.pages.find((page) => page.id === pageId).sections.find((item) => item.id === sectionId).body;
+  assert.equal(sloop.version, '2.6');
+  assert.equal(sloop.checkedAt, '2026-10-16');
+  assert.match(body('controls', 'gestures'), /按住功能键 \+ 短按 HOME/);
+  assert.doesNotMatch(body('controls', 'gestures'), /双击/);
+  assert.match(body('live-recording', 'free-take'), /下一个第一拍/);
+  assert.match(body('step-recording', 'detail'), /VEL 1–127/);
+  assert.match(body('saving', 'save-project'), /PROJECT/);
+  assert.match(body('presets', 'engine-list'), /DIGITAL/);
+  assert.doesNotMatch(body('presets', 'engine-list'), /SLICE/);
+  assert.match(body('sources', 'version'), /GUIDE.md 已标为 2.7/);
 });
 
 test('stock bilingual search resolves its own tasks without exposing Felucca-only chapters', () => {

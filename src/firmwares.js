@@ -8,6 +8,14 @@
       locales: window.FeluccaLocales,
       suggestions: ['quick-start/first-sound', 'controls/gestures', 'live-recording/record', 'saving/save-project', 'shortcuts/buttons'],
     }),
+    sloop: Object.freeze({
+      id: 'sloop', labels: { zh: 'SLOOP', en: 'SLOOP' }, badge: 'SLOOP 2.6',
+      baselines: { zh: '内容基线：SLOOP 2.6', en: 'Content baseline: SLOOP 2.6' },
+      sourceLabels: { zh: 'SLOOP 项目仓库', en: 'SLOOP on GitHub' }, sourceUrl: 'https://github.com/isod89/sloop-fm1',
+      sourceIcon: 'github', showPageSources: true,
+      locales: window.FM1SloopLocales,
+      suggestions: ['quick-start/first-loop', 'controls/gestures', 'live-recording/record', 'saving/save-project', 'shortcuts/buttons'],
+    }),
     official: Object.freeze({
       id: 'official', labels: { zh: '官方固件', en: 'Official firmware' }, badge: 'FM-1 · Stock',
       baselines: { zh: '说明书修订：2026-08-10', en: 'Manual revision: 2026-08-10' },

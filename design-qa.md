@@ -20,6 +20,14 @@ Automated v0.3 checks cover both guides in both languages, source page reference
 
 The header search now uses a centered grid column; on mobile it occupies a centered second row. The larger search dialog uses fixed viewport positioning and a stable height, with scrolling confined to results or the empty-state panel. An accessible icon link replaces the firmware text link: GitHub for Felucca, the site's M-VAVE mark for stock firmware, with an M fallback if the external image cannot load. Print-page controls and stock per-chapter source footers are removed. Stock source records and its sources chapter remain available. These layout changes have not been inspected in a browser.
 
+## SLOOP and navigation update · 2026-10-16
+
+Added 18 independently written bilingual SLOOP chapters with a separate firmware registration, qualified routes, scoped search, sources and build / preview assets. Existing Felucca and stock guides remain available. The inspected UI identifies 2.6 while the online complete guide describes 2.7; the source scope and excluded additions are recorded in `docs/sloop-source.md` and the SLOOP sources chapter.
+
+Chapter group headings increased from 12px desktop / 13px mobile to 16px, including English. The FM-1 Docs mark now combines an inline square-wave panel symbol, tick marks and a monospaced wordmark. Mobile widths and coarse touch pointers hide only search keyboard hints, retaining the close button and manual hardware key labels. Left and right navigation use transparent scrollbar thumbs until a passive scroll handler adds `is-scrolling`; the handler removes it after 700ms without another scroll. Gutter space remains stable, and hover does not reveal the thumb.
+
+`npm test`, `npm run build`, `npm run test:sites` and `git diff --check` passed. The manual checks cover all three guides, 49 bilingual chapters, internal links, registered suggestions, SLOOP task searches and key 2.6 control differences. No browser or screenshot tool is installed. The preview was attempted again and failed to bind 127.0.0.1:4173 with EPERM. Desktop / mobile rendering, touch interaction, scrollbar painting and timing, and browser focus / history behavior remain unverified visually. No screenshot or visual pass is claimed.
+
 ## Verification limits
 
 Reference text was read through web access. No browser or browser-capture tool is available, so no rendered screenshots, paired visual comparison, browser console review or real interaction checks were performed. This report does not claim visual QA passed. Automated checks are listed in README.md and can run without network access.

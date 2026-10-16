@@ -65,7 +65,7 @@
     select.value = firmwareId;
     $('firmware-context').textContent = t('context');
     $('firmware-baseline').textContent = firmware().baselines[language];
-    $('firmware-checked').textContent = t('checked');
+    $('firmware-checked').textContent = t('checked').replace('{date}', firmware().locales[language].checkedAt);
     const source = $('firmware-source');
     const sourceLabel = firmware().sourceLabels[language];
     source.setAttribute('aria-label', sourceLabel);
@@ -464,6 +464,14 @@
   });
   window.addEventListener('hashchange', () => renderRoute());
   window.matchMedia('(max-width: 760px)').addEventListener('change', syncSidebar);
+  for (const panel of document.querySelectorAll('.sidebar, .page-outline')) {
+    let hideScrollbar;
+    panel.addEventListener('scroll', () => {
+      panel.classList.add('is-scrolling');
+      window.clearTimeout(hideScrollbar);
+      hideScrollbar = window.setTimeout(() => panel.classList.remove('is-scrolling'), 700);
+    }, { passive: true });
+  }
   if (/Mac|iPhone|iPad/.test(navigator.userAgentData?.platform || navigator.platform)) $('search-shortcut').textContent = '⌘ K';
   setLocaleData();
   renderUI();
