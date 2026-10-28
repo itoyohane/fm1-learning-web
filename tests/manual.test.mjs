@@ -8,7 +8,7 @@ import { serveResource } from '../scripts/dev-server.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const context = vm.createContext({ window: {} });
-for (const file of ['content.js', 'content-en.js', 'content-official.js', 'content-sloop.js', 'firmwares.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
+for (const file of ['content.js', 'content-en.js', 'content-official.js', 'content-sloop.js', 'content-jiant.js', 'firmwares.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
 const { pages, sources } = context.window.FeluccaManual;
 const locales = context.window.FeluccaLocales;
 const { parseRoute, formatRoute, firmwareDestination, formatControlLabels, formatControlText, buildSearchIndex, search, excerpt, tokenize, groupResults, moveSelection, readingAnchor, isComposing } = context.window.FeluccaCore;
@@ -141,7 +141,7 @@ test('preview handler serves HTML, CSS and scripts without exposing private file
   const head = await serveResource(new Request('http://local.preview/src/content.js', { method: 'HEAD' }));
   assert.equal(head.status, 200);
   assert.equal(await head.text(), '');
-  for (const file of ['content-en.js', 'content-official.js', 'content-sloop.js', 'firmwares.js', 'locales.js']) {
+  for (const file of ['content-en.js', 'content-official.js', 'content-sloop.js', 'content-jiant.js', 'firmwares.js', 'locales.js']) {
     const response = await serveResource(new Request('http://local.preview/src/' + file));
     assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /javascript/);
@@ -279,8 +279,8 @@ test('firmware switching restores a valid previous location or a matching chapte
   assert.equal(firmwareDestination('sloop', current, sloop, null), '#/sloop/controls/gestures');
 });
 
-test('Felucca, SLOOP and stock guides provide complete translations, links and scoped sources', () => {
-  assert.deepEqual(Object.keys(firmwares).sort(), ['felucca', 'official', 'sloop']);
+test('All four firmware guides provide complete translations, links and scoped sources', () => {
+  assert.deepEqual(Object.keys(firmwares).sort(), ['felucca', 'jiant', 'official', 'sloop']);
   for (const [firmwareId, firmware] of Object.entries(firmwares)) {
     assert.equal(firmware.id, firmwareId);
     const zh = firmware.locales.zh;
@@ -339,19 +339,19 @@ test('SLOOP search finds its own recording and performance instructions in both 
   }
 });
 
-test('SLOOP retains verified 2.6 operations instead of inheriting Felucca or 2.7 controls', () => {
+test('SLOOP follows 2.8.3 operations and retains its distinct layer controls', () => {
   const sloop = firmwares.sloop.locales.zh;
   const body = (pageId, sectionId) => sloop.pages.find((page) => page.id === pageId).sections.find((item) => item.id === sectionId).body;
-  assert.equal(sloop.version, '2.6');
+  assert.equal(sloop.version, '2.8.3');
   assert.equal(sloop.checkedAt, '2026-10-28');
   assert.match(body('controls', 'gestures'), /按住功能键 \+ 短按 HOME/);
   assert.doesNotMatch(body('controls', 'gestures'), /双击/);
   assert.match(body('live-recording', 'free-take'), /下一个第一拍/);
   assert.match(body('step-recording', 'detail'), /VEL 1–127/);
-  assert.match(body('saving', 'save-project'), /PROJECT/);
+  assert.match(body('saving', 'save-project'), /SECTION/);
   assert.match(body('presets', 'engine-list'), /DIGITAL/);
   assert.doesNotMatch(body('presets', 'engine-list'), /SLICE/);
-  assert.match(body('sources', 'version'), /GUIDE.md 已标为 2.7/);
+  assert.match(body('sources', 'version'), /5eb24c1/);
 });
 
 test('Felucca uses the physical SEL label while preserving screen names and routing values', () => {
@@ -368,8 +368,8 @@ test('Felucca uses the physical SEL label while preserving screen names and rout
     for (const page of manual.pages) for (const section of page.sections) {
       assert.doesNotMatch(section.body, /<kbd>SCL<\/kbd>|(?:短按|长按|双击|Tap|Hold) SCL/);
     }
-    assert.match(manual.sources.input.url, /\/v1\.6\.1\//);
-    assert.equal(manual.version, '1.6.1');
+    assert.match(manual.sources.input.url, /\/v1\.7\.0\//);
+    assert.equal(manual.version, '1.7.0');
   }
 });
 
@@ -379,8 +379,8 @@ test('reviewed instructions retain recording prerequisites and separate firmware
   assert.match(body('felucca', 'saving', 'load-backup'), /备份不包含 FM6 外部音色库/);
   assert.match(body('felucca', 'step-recording', 'chord-entry'), /单音模式只保留一个音/);
   assert.match(body('sloop', 'presets', 'choose'), /KNOB 2/);
-  assert.match(body('sloop', 'sources', 'version'), /d30d655/);
-  assert.match(firmwares.sloop.locales.zh.sources.guide.url, /d30d6553353373cf5506b9ed285fc4a2aa0c30ef/);
+  assert.match(body('sloop', 'sources', 'version'), /5eb24c1/);
+  assert.match(firmwares.sloop.locales.zh.sources.guide.url, /5eb24c1dc18261a85c193e8b28318944690e58fd/);
   assert.match(body('official', 'controls', 'gestures'), /<kbd>PIT<\/kbd>/);
   assert.doesNotMatch(body('official', 'shortcuts', 'buttons'), /OCT±/);
 });
@@ -411,4 +411,44 @@ test('stock instructions preserve key differences established by the supplied ma
   assert.match(body('modulation', 'envelope'), /再次按 ENV 会关闭/);
   assert.equal(firmwares.official.locales.zh.manualRevision, '2026-08-10');
   assert.equal(firmwares.official.locales.zh.version, undefined);
+});
+
+test('JIANT routes, restored locations and bilingual search stay in their own guide', () => {
+  assert.equal(parseRoute('#/jiant').firmwareId, 'jiant');
+  assert.equal(parseRoute('#/jiant/samples/load').sectionId, 'load');
+  const firmware = firmwares.jiant;
+  assert.equal(firmwareDestination('jiant', parseRoute('#/sloop/song/chain'), firmware.locales.zh.pages, '#/jiant/saving/arrange'), '#/jiant/saving/arrange');
+  for (const language of ['zh', 'en']) {
+    const manual = firmware.locales[language];
+    const alternate = firmware.locales[language === 'zh' ? 'en' : 'zh'];
+    const index = buildSearchIndex(manual.pages, alternate.pages);
+    for (const [query, pageId, sectionId] of [
+      ['采样库', 'samples', 'load'], ['project backups', 'samples', 'limits'],
+      ['GLO G4', 'sound-design', 'macros'], ['ARRANGE', 'saving', 'arrange'],
+    ]) assert.ok(search(index, query).some(result => result.pageId === pageId && result.sectionId === sectionId), `${language}: ${query}`);
+    assert.equal(search(index, 'hugelton').length, 0);
+    assert.equal(search(index, 'd30d655').length, 0);
+    assert.match(manual.sources.readme.url, /c6e7aa189525043806e6b3052dd1f8b3c39c3e33/);
+  }
+});
+
+test('updated firmware instructions preserve branch boundaries and actionable control changes', () => {
+  const body = (firmware, page, section) => firmwares[firmware].locales.zh.pages.find(p => p.id === page).sections.find(s => s.id === section).body;
+  assert.match(body('sloop', 'drums', 'grid'), /OCT− \/ OCT\+/);
+  assert.match(body('sloop', 'drums', 'grid'), /grid、kit、sound/);
+  assert.doesNotMatch(body('sloop', 'drums', 'grid'), /前四个黑键选择/);
+  assert.match(body('sloop', 'step-recording', 'entry'), /KNOB 1.*KNOB 2.*KNOB 3.*KNOB 4/);
+  assert.match(body('sloop', 'live-recording', 'tempo'), /QUANT.*OFF.*NUDGE/);
+  assert.match(body('felucca', 'sources', 'update-170'), /2ND CORE.*BETA.*OFF/);
+  assert.match(body('jiant', 'quick-start', 'before-start'), /0.9.18.*0.9.9-par/);
+  assert.match(body('jiant', 'samples', 'limits'), /6144.*5406/);
+  assert.match(body('jiant', 'samples', 'limits'), /par10.*ADD.*par13b.*SAMPLE/);
+  assert.match(body('jiant', 'sources', 'version'), /0.6.30/);
+});
+
+test('new guide is served as a JavaScript asset', async () => {
+  const response = await serveResource(new Request('http://local.preview/src/content-jiant.js'));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /javascript/);
+  assert.match(await response.text(), /FM1JiantLocales/);
 });

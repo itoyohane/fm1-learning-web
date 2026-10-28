@@ -1,10 +1,12 @@
 # FM-1 学习手册
 
-面向 M-VAVE FM-1 新手。以目录—正文—本页目录布局，支持选择 **Felucca**、**SLOOP** 或 **官方固件** 教程，三套内容均有完整中英文、双语全文搜索和按键速查。
+面向 M-VAVE FM-1 新手。以目录—正文—本页目录布局，支持选择 **Felucca**、**SLOOP**、**JIANT** 或 **官方固件** 教程，四套内容均有完整中英文、双语全文搜索和按键速查。
 
-Felucca 有 17 章，基线为 **v1.6.1**；SLOOP 有 18 章，基线为 **2.6** 发布版本；官方固件有 14 章，依据说明书修订。说明书未标明固件版本，不把修订日期当作版本号。三套教程均于 **2026-10-28** 复核。这是非官方学习资料。
+Felucca 有 17 章，基线为 **v1.7.0**；SLOOP 有 18 章，基线为 **2.8.3** 发布版本；官方固件有 14 章，依据说明书修订。说明书未标明固件版本，不把修订日期当作版本号。四套教程均于 **2026-10-28** 复核。这是非官方学习资料。
 
-Felucca 操作源码固定到 v1.6.1；SLOOP 资料固定到 v2.6 发布提交，对应完整指南与短手册均标为 2.6。保留版本边界，避免把 main 分支较新版本的控件混入当前教程。核对范围见 [docs/felucca-fact-check.md](docs/felucca-fact-check.md) 和 [docs/sloop-source.md](docs/sloop-source.md)。
+Felucca 基线为 v1.7.0；SLOOP 基线为 v2.8.3（上游仍标为 beta），源码与指南链接固定到发布提交。JIANT 新增 10 章，以 main 提交 `c6e7aa1` 的 README 为主要依据，明确区分 0.9.18 开发线、公开安装器的 SAMPLE par13b / ADDITIVE par10 / STANDARD par12 和旧版 0.6.30 手册。官方教程仍依据提供的 PDF，未确认新的官方固件版本；官网产品页本次返回 HTTP 403。
+
+来源核对记录：[Felucca](docs/felucca-fact-check.md)、[SLOOP](docs/sloop-source.md)、[JIANT](docs/jiant-source.md)。
 
 ## 阅读与开发
 
@@ -44,8 +46,9 @@ npm run preview
 - `src/content.js`：章节、步骤、术语和来源链接。
 - `src/content-en.js`：与中文章节对应的完整英文内容。
 - `src/content-official.js`：基于官方 PDF 的完整中英文教程与页码来源。
-- `src/content-sloop.js`：依据 SLOOP 2.6 源码独立编写的中英文教程。
-- `src/firmwares.js`：三套固件的内容入口、版本信息和搜索建议。
+- `src/content-sloop.js`：依据 SLOOP 2.8.3 发布资料独立编写的中英文教程。
+- `src/content-jiant.js`：JIANT 的中英文教程，注明 main 与公开安装分支的适用范围。
+- `src/firmwares.js`：四套固件的内容入口、版本信息和搜索建议。
 - `src/locales.js`：中英文界面文案。
 - `src/core.js`：路由解析、搜索与统一实体按键图标。
 - `src/app.js`：章节渲染、目录、主题与键盘操作。
@@ -53,14 +56,14 @@ npm run preview
 - `scripts/`：无依赖开发服务器与构建。
 - `tests/`：章节链接、搜索、请求处理和托管测试。
 - `docs/official-manual-source.md`：官方说明书文件指纹、页码索引和核对范围。
-- `docs/sloop-source.md`：SLOOP 源码核对范围与 2.6 / 2.7 版本边界。
+- `docs/sloop-source.md`：SLOOP 2.8.3 来源与操作变化。
 - `docs/felucca-fact-check.md`、`docs/other-guides-fact-check.md`：按已声明版本核对操作说明的记录。
 
 ## 内容维护
 
 新增章节时提供唯一 `id`、章节组、摘要、搜索关键词、小节和来源。Felucca 先核对官方 Wiki，再用 `ui_input.c`、`ui_layer.c`、`ui.c` 确认上下文操作。官方固件以提供的说明书为准，在数据中保留 PDF 页码，并集中在“资料与适用范围”说明来源；各章不显示“本页来源”。未说明的操作不补造，修改教程时同步检查按键速查。
 
-同一固件的两种语言保持相同的章节、小节 ID 和来源主题。当前开放三套教程；后续固件可扩展注册表与对应内容，不使用其他固件的教程代替。SLOOP 使用自己的 SEL 按键、HOME 锁层、REC 待命和 PROJECT / A–D 操作。按键标签通过底色与细边框区分，不代表网页能遥控硬件。界面不使用入场、位移或缩放动效。
+同一固件的两种语言保持相同的章节、小节 ID 和来源主题。当前开放四套教程；后续固件可扩展注册表与对应内容，不使用其他固件的教程代替。SLOOP 使用自己的 SEL 按键、HOME 锁层、REC 待命和 SECTION / A–D 操作。按键标签通过底色与细边框区分，不代表网页能遥控硬件。界面不使用入场、位移或缩放动效。
 
 文案只保留操作、结果和必要提示；使用机身英文标签并给出中文含义。保持目录—正文—本页目录结构，不加入营销首屏、学习积分或装饰性硬件图。
 
@@ -72,4 +75,4 @@ npm run preview
 
 ## 验证范围
 
-自动检查覆盖三套固件、49 章的中英文结构与内部链接、固件路由兼容、阅读目的地、搜索隔离、SLOOP / 官方操作差异、静态资源和托管 Worker。2026-10-28 已按 Radix Slate / Indigo 色阶统一浅深主题，字号收敛为 12 / 16 / 24px，边框为 0.5px，移除冗余页头标签、装饰阴影和入场动效。当前环境没有可用浏览器，且启动预览端口返回 EPERM；无法确认真实渲染、移动端交互或视觉效果。截图环节已按用户要求跳过，见 `design-qa.md`。
+自动检查覆盖四套固件、59 章的中英文结构与内部链接、固件路由兼容、阅读目的地、搜索隔离、SLOOP / 官方操作差异、静态资源和托管 Worker。2026-10-28 已按 Radix Slate / Indigo 色阶统一浅深主题，字号收敛为 12 / 16 / 24px，边框为 0.5px，移除冗余页头标签、装饰阴影和入场动效。本次通过 Chromium 检查桌面与手机尺寸的 JIANT 页面、双语搜索、语言切换和固件切换；无脚本错误或横向溢出。硬件刷写、音频和各安装器分支行为未实测，见 `design-qa.md`。

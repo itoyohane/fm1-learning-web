@@ -54,3 +54,13 @@ Implemented the user's eleven constraints within the existing manual. Removed mi
 Local Radix Slate and Indigo sRGB values now cover light/dark surfaces, interactive states, separators, focus, text, highlights, source-mark tint and print styling. Usage follows https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale. Typography uses 12px, 16px and 24px; group headings remain larger than chapter links. Borders and focus outlines use 0.5px. Callouts have flat neutral backgrounds without left accents; previous/next navigation uses top separators instead of framed cards. Removed decorative shadows, CSS transitions, entry keyframes, pressed transforms and JavaScript article fades. Dialog radius 16px, inner inset 12px and inner radius 4px share corner centers. Search labels and results share 24px text insets. Header controls have matching 44px heights, and touch navigation retains 44px targets.
 
 Validation: `npm test`, `npm run build`, `npm run test:sites`, source checks and `git diff --check`. Preview startup was attempted with the local server and failed with `listen EPERM` on 127.0.0.1:4173. No browser executable or browser tool is available. Desktop/laptop/tablet/mobile rendering, optical alignment, external-logo tint and focus/history interactions have not been visually verified; no screenshot or visual pass is claimed.
+
+## Firmware documentation update (2026-10-28)
+
+Current check supersedes the earlier unavailable-browser limitation for the flows below. Preserved the existing layout and styles; added JIANT through the same selector and firmware registry. Its ten bilingual chapters share section IDs; all four guides total 59 chapters per language. Kept JIANT navigation groups contiguous.
+
+- Chromium via a temporary Playwright Core install outside the repository; desktop 1440×1000 and mobile/touch 390×844.
+- Opened JIANT deep links; verified Chinese → English keeps the hash, Chinese search returns results in the English guide, ArrowDown/Enter opens a JIANT destination, and switching SLOOP → JIANT restores a valid location.
+- No page script errors; no horizontal overflow on the SAMPLE page at either size. Inspected desktop and mobile screenshots. Screenshots are temporary local QA artifacts, not published assets.
+- Automated checks cover bilingual structures, section IDs, sources, search isolation, legacy Felucca routes, new JIANT assets and specific updated SLOOP instructions. Build and Sites worker checks cover packaging.
+- No physical FM-1, flashing, MIDI transfer or audio verification. JIANT editions remain distinct. Official product-page retrieval returned HTTP 403; the supplied official manual revision remains unchanged.

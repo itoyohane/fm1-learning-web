@@ -19,9 +19,9 @@
     scales: source('官方手册：Scale Keyboard', 'https://github.com/hugelton/Felucca/wiki/Scale-Keyboard'),
     troubleshooting: source('官方手册：Troubleshooting', 'https://github.com/hugelton/Felucca/wiki/Troubleshooting'),
     releases: source('官方手册：Release Notes', 'https://github.com/hugelton/Felucca/wiki/Release-Notes'),
-    input: source('源码：ui_input.c（按键与录音）', 'https://github.com/hugelton/Felucca/blob/v1.6.1/firmware/src/ui_input.c'),
-    layer: source('源码：ui_layer.c（快捷层）', 'https://github.com/hugelton/Felucca/blob/v1.6.1/firmware/src/ui_layer.c'),
-    ui: source('源码：ui.c（页面与预设）', 'https://github.com/hugelton/Felucca/blob/v1.6.1/firmware/src/ui.c'),
+    input: source('源码：ui_input.c（按键与录音）', 'https://github.com/hugelton/Felucca/blob/v1.7.0/firmware/src/ui_input.c'),
+    layer: source('源码：ui_layer.c（快捷层）', 'https://github.com/hugelton/Felucca/blob/v1.7.0/firmware/src/ui_layer.c'),
+    ui: source('源码：ui.c（页面与预设）', 'https://github.com/hugelton/Felucca/blob/v1.7.0/firmware/src/ui.c'),
     editor: source('官方网页编辑器', 'https://hugelton.github.io/Felucca/webapp/editor/'),
     emulator: source('官方浏览器试玩', 'https://hugelton.github.io/Felucca/webapp/try/'),
   };
@@ -33,7 +33,7 @@
       keywords: '新手 入门 上手 第一次 开始 声音 REC PLAY PRESETS', sources: ['controls', 'input', 'features'],
       sections: [
         section('before-start', '开始前',
-          list('准备已安装 Felucca 的 FM-1，开机并把主音量调低。', '使用内置扬声器，或插入耳机；插入耳机会关闭内置扬声器。', '确认固件版本。本手册以 <strong>v1.6.1</strong> 为准，旧版页面可能不同。') +
+          list('准备已安装 Felucca 的 FM-1，开机并把主音量调低。', '使用内置扬声器，或插入耳机；插入耳机会关闭内置扬声器。', '确认固件版本。本手册以 <strong>v1.7.0</strong> 为准，旧版页面可能不同。') +
           note('保存已有作品后再练习。切换预设会替换当前音色的修改；清除音序会删除当前音轨的录音。', '先保留已有作品')),
         section('first-sound', '1. 选择音色并弹奏',
           steps(`短按 ${key('HOME')}，回到首页。若正显示 MIXER 或 CLOCK，继续短按直到回到 HOME。`, `转动 ${key('ALGORITHM')}，选择音轨 1。`, `慢慢转动 ${key('PRESETS')}，选择一个预设音色。`, '按住任意琴键，逐渐调高主音量。换几个预设，比较声音。') +
@@ -256,7 +256,8 @@
     {
       id: 'sources', group: '查阅', title: '资料与版本', summary: '本手册面向已安装 Felucca 的 FM-1 用户，依据官方 Wiki 与操作源码整理。', keywords: '官方 资料 版本 来源 教程 wiki 固件 模拟器 编辑器 GitHub', sources: ['firmware', 'controls', 'features', 'engines', 'menu', 'scales', 'releases', 'input', 'layer', 'ui'],
       sections: [
-        section('version', '适用版本', p('适用设备：<strong>M-VAVE FM-1</strong>。内容基线：<strong>Felucca v1.6.1</strong>。核对日期：<strong>2026-10-28</strong>。') + p('操作源码链接固定到 v1.6.1；在线 Wiki 会更新。本手册不是固件发布页；使用不同版本时，以设备实际页面和对应版本发布说明为准。') + note('这是非官方中文学习资料，与 M-VAVE 及 Felucca 维护者无隶属关系。', '项目说明')),
+        section('version', '适用版本', p('适用设备：<strong>M-VAVE FM-1</strong>。内容基线：<strong>Felucca v1.7.0</strong>。核对日期：<strong>2026-10-28</strong>。') + p('操作源码链接固定到 v1.7.0；在线 Wiki 会更新。本手册不是固件发布页；使用不同版本时，以设备实际页面和对应版本发布说明为准。') + note('这是非官方中文学习资料，与 M-VAVE 及 Felucca 维护者无隶属关系。', '项目说明')),
+        section('update-170', "1.7.0 更新与兼容", p("v1.7.0 保留已有工程、预设与采样格式，主要修复 TRS MIDI 输入和外部时钟漂移。SYSTEM → 2ND CORE 仍为 BETA，默认 OFF，下次开机生效。返回官方 V15 可能擦除工程和 FM6 音色库；先用上游安装器的 Return to official V15 保存完整备份，并另存外部 FM6 音库。")),
         section('official', '官方手册', list(...['firmware', 'controls', 'features', 'engines', 'menu', 'scales', 'releases', 'troubleshooting'].map((id) => `<a href="${sources[id].url}" target="_blank" rel="noopener noreferrer">${sources[id].title}</a>`))),
         section('tools', '官方工具', list(...['editor', 'emulator'].map((id) => `<a href="${sources[id].url}" target="_blank" rel="noopener noreferrer">${sources[id].title}</a>`)) + p('这些工具需要联网，可能需要浏览器设备权限。手册本身可离线阅读。')),
         section('verification', '源码核对范围', list('ui_input.c：REC 的实时/步进输入差异、PLAY、旋钮、STEP 页编辑行为。', 'ui_layer.c：快捷层、双击保持、清除和现场效果。', 'ui.c：首页旋钮、预设加载及页面状态。') + p('手册内容为独立编写的中文操作说明，未复制固件代码。固件及其资源的许可见原仓库。')),
@@ -264,5 +265,5 @@
     },
   ];
 
-  window.FeluccaManual = Object.freeze({ pages, sources, version: '1.6.1', checkedAt: '2026-10-28' });
+  window.FeluccaManual = Object.freeze({ pages, sources, version: '1.7.0', checkedAt: '2026-10-28' });
 })();

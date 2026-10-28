@@ -1,3 +1,15 @@
+# Felucca v1.7.0 update audit
+
+Checked **2026-10-28**. Latest discovered tag **v1.7.0**, commit [`d7b1b7c4099bba28854869ddb256b3d9f634cee8`](https://github.com/hugelton/Felucca/commit/d7b1b7c4099bba28854869ddb256b3d9f634cee8), matches the cloned main HEAD and README version.
+
+Read upstream Wiki Release-Notes (New in 1.7.0) and diffed v1.6.1 against v1.7.0. `ui_input.c` operational changes are comments/paths; the existing gestures remain. Source links and both language baselines now select v1.7.0. Added a bilingual update section covering TRS MIDI receive timing, long-running external-clock drift, preserved project/preset/sample compatibility, and returning to V15. SYSTEM → 2ND CORE remains BETA, OFF by default, with changes effective on reboot. Returning to V15 can erase projects/FM6 data; retain backups and the external FM6 bank.
+
+The source diff includes `ui_input.c`, `ui_menu.c`, `seq.c` and `midi_clock.c`. Release evidence: [tag](https://github.com/hugelton/Felucca/releases/tag/v1.7.0), [README](https://github.com/hugelton/Felucca/blob/d7b1b7c4099bba28854869ddb256b3d9f634cee8/README.md), [v1.6.1…v1.7.0 diff](https://github.com/hugelton/Felucca/compare/v1.6.1...v1.7.0), [Wiki release notes](https://github.com/hugelton/Felucca/wiki/Release-Notes). Wiki content is mutable. No hardware was connected.
+
+The earlier detailed audit below remains historical evidence for unchanged controls; its v1.6.1 baseline is superseded above.
+
+---
+
 # Felucca factual review
 
 Checked **2026-10-28**. Guide baseline remains **Felucca v1.6.1**. Chinese and English chapter / section IDs are retained.

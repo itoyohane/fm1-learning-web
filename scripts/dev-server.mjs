@@ -10,6 +10,7 @@ const assets = new Map([
   ['/src/content-en.js', 'text/javascript; charset=utf-8'],
   ['/src/content-official.js', 'text/javascript; charset=utf-8'],
   ['/src/content-sloop.js', 'text/javascript; charset=utf-8'],
+  ['/src/content-jiant.js', 'text/javascript; charset=utf-8'],
   ['/src/firmwares.js', 'text/javascript; charset=utf-8'],
   ['/src/locales.js', 'text/javascript; charset=utf-8'],
   ['/src/core.js', 'text/javascript; charset=utf-8'],

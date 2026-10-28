@@ -1,3 +1,5 @@
+> Historical 2.6 audit. Current SLOOP 2.8.3 instructions and source identity are documented in [sloop-source.md](sloop-source.md). The official-manual audit below still uses the supplied PDF revision; no newer official firmware version was verified.
+
 # SLOOP and stock-guide fact check
 
 Checked **2026-10-28**. Scope: all 18 SLOOP chapters and all 14 stock chapters, in Chinese and English. Firmware baselines remain SLOOP 2.6 and the supplied official manual revision 2026-08-10. Existing UI and punctuation edits were preserved.
