@@ -17,9 +17,9 @@
     firmware: ['SLOOP 固件仓库', 'SLOOP repository', repo],
     manual: ['SLOOP 2.6 功能说明', 'SLOOP 2.6 manual', `${repo}/blob/main/SLOOP.md`],
     guide: ['完整指南（含 2.7 新功能）', 'Complete guide (also covers 2.7)', `${repo}/blob/main/GUIDE.md`],
-    input: ['源码：ui_input.c · 按键与录音', 'Source: ui_input.c · input and recording', `${repo}/blob/main/firmware/src/ui_input.c`],
-    layers: ['源码：ui_layers.c · 快捷层', 'Source: ui_layers.c · layers', `${repo}/blob/main/firmware/src/ui_layers.c`],
-    ui: ['源码：ui.c · 版本、预设与 MIDI LEARN', 'Source: ui.c · version, presets and MIDI learn', `${repo}/blob/main/firmware/src/ui.c`],
+    input: ['源码：ui_input.c / 按键与录音', 'Source: ui_input.c / input and recording', `${repo}/blob/main/firmware/src/ui_input.c`],
+    layers: ['源码：ui_layers.c / 快捷层', 'Source: ui_layers.c / layers', `${repo}/blob/main/firmware/src/ui_layers.c`],
+    ui: ['源码：ui.c / 版本、预设与 MIDI LEARN', 'Source: ui.c / version, presets and MIDI learn', `${repo}/blob/main/firmware/src/ui.c`],
     installer: ['SLOOP 安装器', 'SLOOP installer', installer],
     editor: ['SLOOP 网页编辑器', 'SLOOP web editor', editor],
   };
@@ -272,8 +272,8 @@
           'Source inspection', list(external(references.ui[2], 'ui.c') + ': version identifier, user presets and MIDI learn.', external(references.input[2], 'ui_input.c') + ': tap / hold, HOME layer locking, STEP and MIDI entry, two DRUMS pages.', external(references.layers[2], 'ui_layers.c') + ': SEQ locks / NUDGE, GLO mixing / fills, A–D storage and chains.', external(references.manual[2], 'SLOOP.md') + ': 2.6 features, twelve engines, recording, samples, USB audio and backup.') + p('Instructions and translations are independently written. The upstream firmware uses GPL-3.0.')),
         section('install', '安装与更新入口', list('安装前在网页编辑器导出完整备份，并确认自己的设备与目标版本。', '使用' + external(installer, 'SLOOP 安装器') + '，Chrome / Edge、USB 数据线与 MIDI 权限按页面提示设置。', '安装或恢复期间等待页面完成。返回官方固件或降级时，按对应文件与版本的上游说明操作。') + p('本学习手册不分发固件，也不会自动安装更新。'),
           'Installation and updates', list('Export a full editor backup and confirm the device and target version first.', 'Use the ' + external(installer, 'SLOOP installer') + ' in Chrome / Edge with a USB data cable and the requested MIDI permissions.', 'Wait for completion during installation or rescue. For stock firmware or a downgrade, follow the instructions for that file and version.') + p('This learning manual does not distribute firmware or install updates.')),
-        section('tools', '上游资料与工具', list(external(repo, 'SLOOP GitHub'), external(references.manual[2], 'SLOOP.md · 2.6'), external(references.guide[2], 'GUIDE.md · 含 2.7 / includes 2.7'), external(editor, 'Web editor'), external(installer, 'Installer')) + p('手册正文和搜索可离线使用；上游链接需要网络，编辑器连接需要浏览器设备权限。'),
-          'Upstream resources and tools', list(external(repo, 'SLOOP GitHub'), external(references.manual[2], 'SLOOP.md · 2.6'), external(references.guide[2], 'GUIDE.md · includes 2.7'), external(editor, 'Web editor'), external(installer, 'Installer')) + p('The manual and search work offline. Upstream links need a network connection; connecting the editor needs browser device permissions.')),
+        section('tools', '上游资料与工具', list(external(repo, 'SLOOP GitHub'), external(references.manual[2], 'SLOOP.md (2.6)'), external(references.guide[2], 'GUIDE.md（含 2.7）'), external(editor, 'Web editor'), external(installer, 'Installer')) + p('手册正文和搜索可离线使用；上游链接需要网络，编辑器连接需要浏览器设备权限。'),
+          'Upstream resources and tools', list(external(repo, 'SLOOP GitHub'), external(references.manual[2], 'SLOOP.md (2.6)'), external(references.guide[2], 'GUIDE.md (includes 2.7)'), external(editor, 'Web editor'), external(installer, 'Installer')) + p('The manual and search work offline. Upstream links need a network connection; connecting the editor needs browser device permissions.')),
       ],
     },
   ];

@@ -37,3 +37,12 @@ Starting the preview server was also attempted; binding 127.0.0.1:4173 failed wi
 ## Environment adaptation
 
 The bundled web template was initialized. Package installation failed with EPERM at the network socket; application code therefore uses native JavaScript with a dependency-free Node preview/build pipeline. Original hosting Worker, metadata and preparation script remain intact.
+
+
+## UI refinement (2026-10-28)
+
+Implemented the user's eleven constraints within the existing manual. Removed middle-dot separators in UI strings, document titles, parameter tables and source labels. Shortened search and chapter-navigation copy in both languages; removed the repeated firmware/language header context, visible firmware-selector subtitle and current-page breadcrumb segment. Retained chapter summaries, search excerpts, source/version information and operational warnings because they support reading and result selection.
+
+Local Radix Slate and Indigo sRGB values now cover light/dark surfaces, interactive states, separators, focus, text, highlights, source-mark tint and print styling. Usage follows https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale. Typography uses 12px, 16px and 24px; group headings remain larger than chapter links. Borders and focus outlines use 0.5px. Callouts have flat neutral backgrounds without left accents; previous/next navigation uses top separators instead of framed cards. Removed decorative shadows, CSS transitions, entry keyframes, pressed transforms and JavaScript article fades. Dialog radius 16px, inner inset 12px and inner radius 4px share corner centers. Search labels and results share 24px text insets. Header controls have matching 44px heights, and touch navigation retains 44px targets.
+
+Validation: `npm test`, `npm run build`, `npm run test:sites`, source checks and `git diff --check`. Preview startup was attempted with the local server and failed with `listen EPERM` on 127.0.0.1:4173. No browser executable or browser tool is available. Desktop/laptop/tablet/mobile rendering, optical alignment, external-logo tint and focus/history interactions have not been visually verified; no screenshot or visual pass is claimed.

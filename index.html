@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="FM-1 中英文学习手册。选择 Felucca、SLOOP 或官方固件，查阅面板操作、音色、音序、保存与连接。" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#ffffff" />
-    <title>快速开始 · FM-1 学习手册</title>
+    <meta name="theme-color" content="#fcfcfd" />
+    <title>快速开始 / FM-1 学习手册</title>
     <link rel="stylesheet" href="./src/styles.css" />
     <script src="./src/content.js" defer></script>
     <script src="./src/content-en.js" defer></script>
@@ -29,6 +29,7 @@
         <div class="header-actions">
           <a id="firmware-source" class="firmware-link" href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener noreferrer" aria-label="Felucca 项目仓库" title="Felucca 项目仓库">
             <svg id="github-source-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 .75a11.25 11.25 0 0 0-3.558 21.924c.563.105.769-.244.769-.543 0-.268-.01-.977-.015-1.918-3.13.68-3.791-1.508-3.791-1.508-.512-1.3-1.25-1.646-1.25-1.646-1.023-.7.077-.686.077-.686 1.132.08 1.728 1.162 1.728 1.162 1.006 1.724 2.64 1.226 3.283.938.102-.73.394-1.226.715-1.508-2.499-.284-5.126-1.25-5.126-5.564 0-1.229.44-2.233 1.16-3.02-.116-.285-.503-1.43.11-2.98 0 0 .945-.303 3.095 1.154A10.793 10.793 0 0 1 12 6.176c.956.004 1.919.13 2.817.379 2.148-1.457 3.092-1.154 3.092-1.154.615 1.55.228 2.695.113 2.98.72.787 1.158 1.791 1.158 3.02 0 4.326-2.631 5.277-5.138 5.556.404.35.766 1.04.766 2.096 0 1.512-.014 2.732-.014 3.103 0 .302.203.654.774.543A11.25 11.25 0 0 0 12 .75Z" /></svg>
+            <svg width="0" height="0" aria-hidden="true"><defs><filter id="source-logo-tint" color-interpolation-filters="sRGB"><feFlood class="source-logo-color" /><feComposite in2="SourceAlpha" operator="in" /></filter></defs></svg>
             <span id="official-source-icon" class="official-source-icon" aria-hidden="true" hidden><span id="official-icon-fallback">M</span><img id="official-logo" width="30" height="24" alt="" decoding="async" hidden /></span>
           </a>
           <label class="language-control"><span class="sr-only" data-i18n="language">阅读语言</span><select id="language-select"><option value="zh">中文</option><option value="en">English</option></select></label>
@@ -41,14 +42,13 @@
           <a href="#/felucca/quick-start" data-tab="manual" data-i18n="manual">学习手册</a>
           <a href="#/felucca/shortcuts" data-tab="shortcuts" data-i18n="shortcuts">按键速查</a>
           <a href="#/felucca/sources" data-tab="sources" data-i18n="sources">资料来源</a>
-          <span id="firmware-context" class="nav-context">Felucca · 中文</span>
         </div>
       </nav>
     </header>
     <div id="sidebar-backdrop" hidden></div>
     <div class="docs-layout">
       <aside id="sidebar" class="sidebar" aria-label="章节目录">
-        <div class="sidebar-heading"><span data-i18n="firmwareGuide">固件教程</span><button id="close-menu" class="text-button" type="button" data-i18n="close">关闭</button></div>
+        <div class="sidebar-heading"><span class="sr-only" data-i18n="firmwareGuide">固件教程</span><button id="close-menu" class="text-button" type="button" data-i18n="close">关闭</button></div>
         <label class="firmware-control" for="firmware-select"><span class="sr-only" data-i18n="firmwareGuide">固件教程</span><select id="firmware-select"><option value="felucca">Felucca</option><option value="sloop">SLOOP</option><option value="official">官方固件</option></select></label>
         <nav id="chapter-nav" aria-label="学习章节"></nav>
         <div class="sidebar-note"><span data-i18n="sidebarNote">非官方学习手册</span><br /><span id="firmware-baseline">内容基线：Felucca v1.6.1</span></div>
@@ -57,7 +57,7 @@
         <div id="breadcrumb" class="breadcrumb"></div>
         <article id="article"></article>
         <nav id="page-navigation" class="page-navigation" aria-label="相邻章节"></nav>
-        <footer id="firmware-checked" class="article-footer">核对日期：2026-10-15 · M-VAVE FM-1 / Felucca</footer>
+        <footer id="firmware-checked" class="article-footer">核对日期：2026-10-15</footer>
       </main>
       <aside class="page-outline" aria-label="本页目录">
         <p class="outline-title" data-i18n="outline">本页内容</p>
@@ -70,12 +70,12 @@
         <button id="close-search" class="text-button" type="button"><span data-i18n="close">关闭</span><kbd>Esc</kbd></button>
       </div>
       <div class="search-input-wrap">
-        <input id="search-input" type="search" role="combobox" placeholder="搜索操作、章节或英文按键…" autocomplete="off" spellcheck="false" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results" aria-describedby="search-status" />
+        <input id="search-input" type="search" role="combobox" placeholder="搜索章节或按键…" autocomplete="off" spellcheck="false" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results" aria-describedby="search-status" />
         <button id="clear-search" class="text-button" type="button" aria-label="清空搜索内容" hidden data-i18n="clear">清空</button>
       </div>
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="search-results" class="search-results" role="listbox" aria-label="搜索结果"></div>
-      <div id="search-empty" class="search-empty" hidden><strong data-i18n="searchEmpty">没有找到相关内容</strong><p data-i18n="searchEmptyHelp">试试“保存”“REC”或“音色”，也支持英文搜索。</p></div>
+      <div id="search-empty" class="search-empty" hidden><strong data-i18n="searchEmpty">未找到结果</strong><p data-i18n="searchEmptyHelp">请缩短关键词或使用按键名称。</p></div>
       <div class="search-help"><span><kbd>↑</kbd><kbd>↓</kbd> <span data-i18n="searchHelp">选择</span></span><span><kbd>Enter</kbd> <span data-i18n="searchOpen">打开</span></span><span><kbd>Esc</kbd> <span data-i18n="searchDismiss">关闭</span></span></div>
     </dialog>
     <noscript><p class="noscript-message">请启用 JavaScript 以阅读完整手册与搜索章节。 Enable JavaScript to read and search the manual.</p></noscript>

@@ -45,7 +45,7 @@
     document.documentElement.dataset.theme = theme;
     $('theme-toggle').textContent = t(theme === 'dark' ? 'light' : 'dark');
     $('theme-toggle').setAttribute('aria-pressed', String(theme === 'dark'));
-    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#171721' : '#ffffff';
+    document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.documentElement).getPropertyValue('--page').trim();
   }
   function renderUI() {
     document.documentElement.lang = t('lang');
@@ -63,7 +63,6 @@
       return option;
     }));
     select.value = firmwareId;
-    $('firmware-context').textContent = t('context');
     $('firmware-baseline').textContent = firmware().baselines[language];
     $('firmware-checked').textContent = t('checked').replace('{date}', firmware().locales[language].checkedAt);
     const source = $('firmware-source');
@@ -73,7 +72,9 @@
     source.href = firmware().sourceUrl;
     $('github-source-icon').toggleAttribute('hidden', firmware().sourceIcon !== 'github');
     $('official-source-icon').hidden = firmware().sourceIcon !== 'official';
-    if (firmware().sourceIcon === 'official' && !$('official-logo').getAttribute('src')) $('official-logo').src = firmware().sourceIconUrl;
+    if (firmware().sourceIcon === 'official' && !$('official-logo').getAttribute('src')) {
+      $('official-logo').src = firmware().sourceIconUrl;
+    }
     document.querySelector('.brand').href = routeHref('quick-start');
     document.querySelectorAll('[data-tab]').forEach((anchor) => { anchor.href = routeHref(anchor.dataset.tab === 'manual' ? 'quick-start' : anchor.dataset.tab); });
     $('open-search').setAttribute('aria-label', t('search'));
@@ -166,7 +167,6 @@
       reference.append(sourceList);
       article.append(reference);
     }
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) article.animate?.([{ opacity: 0.65 }, { opacity: 1 }], { duration: 140, easing: 'ease-out' });
   }
   function renderPageNavigation(page) {
     const index = pages.indexOf(page);
@@ -204,10 +204,10 @@
       $('breadcrumb').textContent = t('manual');
       $('table-of-contents').replaceChildren();
       $('page-navigation').replaceChildren();
-      document.title = `${t('notFound')} · ${t('title')}`;
+      document.title = `${t('notFound')} / ${t('title')}`;
     } else if (changed) {
-      document.title = `${page.title} · ${firmware().labels[language]} · ${t('title')}`;
-      $('breadcrumb').textContent = `${firmware().labels[language]} / ${page.group} / ${page.title}`;
+      document.title = `${page.title} / ${firmware().labels[language]} / ${t('title')}`;
+      $('breadcrumb').textContent = `${firmware().labels[language]} / ${page.group}`;
       renderArticle(page);
       renderPageNavigation(page);
       const outline = $('table-of-contents');

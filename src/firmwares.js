@@ -17,7 +17,7 @@
       suggestions: ['quick-start/first-loop', 'controls/gestures', 'live-recording/record', 'saving/save-project', 'shortcuts/buttons'],
     }),
     official: Object.freeze({
-      id: 'official', labels: { zh: '官方固件', en: 'Official firmware' }, badge: 'FM-1 · Stock',
+      id: 'official', labels: { zh: '官方固件', en: 'Official firmware' }, badge: 'FM-1 / Stock',
       baselines: { zh: '说明书修订：2026-08-10', en: 'Manual revision: 2026-08-10' },
       sourceLabels: { zh: 'M-VAVE FM-1 产品页', en: 'M-VAVE FM-1 product page' }, sourceUrl: 'https://www.m-vave.com/product?id=fm-1',
       sourceIcon: 'official', sourceIconUrl: 'https://www.m-vave.com/images/logo.webp', showPageSources: false,
