@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const firmwares = window.FM1Firmwares;
-  const { parseRoute, formatRoute, firmwareDestination, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing } = window.FeluccaCore;
+  const { parseRoute, formatRoute, firmwareDestination, formatControlLabels, formatControlText, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing } = window.FeluccaCore;
   const $ = (id) => document.getElementById(id);
   const dialog = $('search-dialog');
   const input = $('search-input');
@@ -31,6 +31,11 @@
     const node = document.createElement(tag);
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function controlTextElement(tag, className, text) {
+    const node = element(tag, className);
+    node.innerHTML = formatControlText(text, firmwareId);
     return node;
   }
   function routeHref(pageId, sectionId = '') { return formatRoute(firmwareId, pageId, sectionId); }
@@ -131,17 +136,17 @@
   }
   function renderArticle(page) {
     const article = $('article');
-    article.replaceChildren(element('h1', '', page.title), element('p', 'page-summary', page.summary));
+    article.replaceChildren(controlTextElement('h1', '', page.title), controlTextElement('p', 'page-summary', page.summary));
     for (const section of page.sections) {
       const container = element('section', 'article-section');
       container.id = section.id;
       const heading = element('h2');
-      const anchor = element('a', 'heading-link', section.title);
+      const anchor = controlTextElement('a', 'heading-link', section.title);
       anchor.href = routeHref(page.id, section.id);
       heading.append(anchor);
       const body = element('div', 'section-body');
       // Only trusted, locally authored chapter HTML enters this sink.
-      body.innerHTML = section.body;
+      body.innerHTML = formatControlLabels(section.body, firmwareId);
       // Legacy authored Felucca links are rendered with an explicit firmware namespace.
       body.querySelectorAll('a[href^="#/"]').forEach((anchor) => {
         const route = parseRoute(anchor.getAttribute('href'));

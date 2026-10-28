@@ -1,22 +1,22 @@
 # SLOOP source baseline
 
-Checked on **2026-10-16** against [isod89/sloop-fm1](https://github.com/isod89/sloop-fm1). The independent bilingual guide lives in `src/content-sloop.js` and is registered under `sloop`.
+Rechecked on **2026-10-28** against [SLOOP v2.6](https://github.com/isod89/sloop-fm1/releases/tag/v2.6), release commit [`d30d6553353373cf5506b9ed285fc4a2aa0c30ef`](https://github.com/isod89/sloop-fm1/commit/d30d6553353373cf5506b9ed285fc4a2aa0c30ef). The independent bilingual guide lives in `src/content-sloop.js` and is registered under `sloop`.
 
 ## Version boundary
 
-The retrieved [`ui.c`](https://github.com/isod89/sloop-fm1/blob/main/firmware/src/ui.c) identifies `FELUCCA_VERSION` as **SLOOP 2.6**. [`SLOOP.md`](https://github.com/isod89/sloop-fm1/blob/main/SLOOP.md) also identifies 2.6. Retrieved [`GUIDE.md`](https://github.com/isod89/sloop-fm1/blob/main/GUIDE.md) identifies **2.7** and includes later features. Retrieval times differed across files; this is a 2.6 content baseline, not a claim that all upstream main files form one immutable snapshot.
+The initial 2026-10-16 inspection retrieved a main-branch `ui.c` identifying SLOOP 2.6 and a main-branch guide identifying 2.7. That mixed retrieval is superseded for documentation by matching, versioned [`SLOOP.md`](https://github.com/isod89/sloop-fm1/blob/v2.6/SLOOP.md) and [`GUIDE.md`](https://github.com/isod89/sloop-fm1/blob/v2.6/GUIDE.md), both explicitly identifying **2.6**. The guide remains on 2.6; later features are outside its scope.
 
-Git network access failed with a socket EPERM. GitHub connector access failed, and the web service could not retrieve the commit API. No commit SHA was obtained. References therefore point to mutable main URLs. Before changing the baseline, obtain a consistent source revision and compare the actual control implementations with the matching guide.
+The release page provides the full commit above. The web service could retrieve the v2.6 manuals but not freshly retrieve all tagged source files; initial code inspection and this release-document audit are distinct evidence. Displayed source links now use the v2.6 release commit. Detailed corrections and remaining limits are in [other-guides-fact-check.md](other-guides-fact-check.md).
 
 ## Inspected behavior
 
 | File / resource | Guide coverage |
 | --- | --- |
-| [`ui.c`](https://github.com/isod89/sloop-fm1/blob/main/firmware/src/ui.c) | Version identifier; user presets; MIDI learn selection, reserved CCs and mapping persistence. |
-| [`ui_input.c`](https://github.com/isod89/sloop-fm1/blob/main/firmware/src/ui_input.c) | Tap / hold; layer button + HOME locks; DRUMS cycles two pages; STEP and external MIDI note entry; context-dependent SAVE. |
-| [`ui_layers.c`](https://github.com/isod89/sloop-fm1/blob/main/firmware/src/ui_layers.c) | Step velocity, ratchets, nudge, locks and fill conditions; mix keys; section storage / confirmation; song chains. |
-| [`SLOOP.md`](https://github.com/isod89/sloop-fm1/blob/main/SLOOP.md) | Free / tempo recording, twelve synth engines, 153 sounds, drum kits, INSERT, TEXTURE, USB audio, samples and backups. |
-| [`GUIDE.md`](https://github.com/isod89/sloop-fm1/blob/main/GUIDE.md) | Cross-reference for shared gestures and page labels; explicitly newer features excluded. |
+| [`ui.c`](https://github.com/isod89/sloop-fm1/blob/v2.6/firmware/src/ui.c) | Initial code inspection: version identifier; user presets; MIDI learn selection, reserved CCs and mapping persistence. |
+| [`ui_input.c`](https://github.com/isod89/sloop-fm1/blob/v2.6/firmware/src/ui_input.c) | Initial code inspection: tap / hold; layer button + HOME locks; DRUMS cycles two pages; STEP and external MIDI note entry; context-dependent SAVE. |
+| [`ui_layers.c`](https://github.com/isod89/sloop-fm1/blob/v2.6/firmware/src/ui_layers.c) | Initial code inspection: step velocity, ratchets, nudge, locks and fill conditions; mix keys; section storage / confirmation; song chains. |
+| [`SLOOP.md`](https://github.com/isod89/sloop-fm1/blob/v2.6/SLOOP.md) | Versioned document audit: free / tempo recording, twelve synth engines, 153 sounds, drum kits, INSERT, TEXTURE, USB audio, samples and backups. |
+| [`GUIDE.md`](https://github.com/isod89/sloop-fm1/blob/v2.6/GUIDE.md) | Versioned document audit: gestures, page labels, step entry and voice settings. |
 
 ## Differences to preserve
 

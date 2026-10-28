@@ -25,6 +25,30 @@
     const sectionId = page.sections.some((item) => item.id === candidate?.sectionId) ? candidate.sectionId : '';
     return formatRoute(firmwareId, page.id, sectionId);
   }
+  // Match printed controls, not substrings in filenames, identifiers or longer labels.
+  const panelLabels = 'PLAY[ \\t]*/[ \\t]*STOP|KNOB[ \\t]+[1-4](?:[–-][1-4])?|OCT[+−-]|ALGORITHM|PRESETS|SELECT|MASTER|HOME|SAVE|REC|PLAY|EDIT|SEL|SEQ|ARP|ENV|LFO|GLO|FX';
+  const controlPatterns = new Map();
+  function formatControlLabels(html, firmwareId = 'felucca') {
+    if (!controlPatterns.has(firmwareId)) {
+      // OP legends belong to the stock keyboard; FM6 operator names are sound parameters.
+      const keyboardLabels = firmwareId === 'official' ? '|OP[1-6](?:[–-](?:OP)?[1-6])?' : '';
+      controlPatterns.set(firmwareId, new RegExp(`(?<![A-Za-z0-9_])(?:${panelLabels}${keyboardLabels})(?![A-Za-z0-9_])`, 'g'));
+    }
+    let literalDepth = 0;
+    // Input is trusted authored HTML. Preserve tags/attributes and explicit literal markup.
+    return html.split(/(<(?:"[^"]*"|'[^']*'|[^'">])*>)/g).map((part) => {
+      if (part.startsWith('<')) {
+        const tag = part.match(/^<\s*(\/?)\s*(kbd|code|pre|script|style)\b/i);
+        if (tag && !part.endsWith('/>')) literalDepth += tag[1] ? -1 : 1;
+        return part;
+      }
+      return literalDepth ? part : part.replace(controlPatterns.get(firmwareId), '<kbd>$&</kbd>');
+    }).join('');
+  }
+  function formatControlText(text, firmwareId) {
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return formatControlLabels(escaped, firmwareId);
+  }
   function plainText(html) {
     return html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
   }
@@ -108,5 +132,5 @@
     return { id: section.id, fraction: Math.min(1, Math.max(0, (viewportTop - section.top) / Math.max(1, section.height))) };
   }
   function isComposing(event) { return Boolean(event.isComposing || event.keyCode === 229); }
-  window.FeluccaCore = Object.freeze({ parseRoute, formatRoute, firmwareDestination, plainText, normalize, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing });
+  window.FeluccaCore = Object.freeze({ parseRoute, formatRoute, firmwareDestination, formatControlLabels, formatControlText, plainText, normalize, buildSearchIndex, tokenize, search, excerpt, groupResults, moveSelection, readingAnchor, isComposing });
 })();

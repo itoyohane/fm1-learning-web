@@ -6,7 +6,7 @@ The stock-firmware guide is independently written from the user-supplied `../FM-
 - Manual revision: **2026-08-10**, printed on PDF page 30. This is not a firmware version.
 - File: 31 pages; 1,033,110 bytes.
 - SHA-256: `9ca4e9d69138ed3d3c266184498acb670939b290975839b8505309f296c1f993`.
-- Checked: 2026-10-15.
+- Rechecked: 2026-10-28. Detailed findings: [other-guides-fact-check.md](other-guides-fact-check.md).
 
 References in `src/content-official.js` use PDF file page numbers, rather than printed footer numbers. The English body is on pages 2–15 and the Chinese body on pages 18–30.
 

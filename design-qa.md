@@ -28,6 +28,14 @@ Chapter group headings increased from 12px desktop / 13px mobile to 16px, includ
 
 `npm test`, `npm run build`, `npm run test:sites` and `git diff --check` passed. The manual checks cover all three guides, 49 bilingual chapters, internal links, registered suggestions, SLOOP task searches and key 2.6 control differences. No browser or screenshot tool is installed. The preview was attempted again and failed to bind 127.0.0.1:4173 with EPERM. Desktop / mobile rendering, touch interaction, scrollbar painting and timing, and browser focus / history behavior remain unverified visually. No screenshot or visual pass is claimed.
 
+## Factual review and shared keycaps (2026-10-28)
+
+Reviewed all 49 chapters in both languages against their declared firmware versions. Felucca distinguishes physical SEL, the SELECT encoder and the SCL page; corrected cursor-entry prerequisites for parameter locks, FM6 backup scope, count-in / external-clock behavior, chord-entry voice limits and omitted MIDI routing modes. SLOOP remains on 2.6 with release-pinned references; corrected engine selection, FM6 patch persistence, drum filtering, LFO triggering, flash-save prerequisites and offline-editor instructions. Stock instructions were rechecked against the supplied PDF. Source evidence and retrieval limits are recorded in `docs/felucca-fact-check.md`, `docs/other-guides-fact-check.md` and `docs/sloop-source.md`.
+
+The shared renderer uses the same native `kbd` markup as Quick start for printed panel controls in article titles, summaries, section headings, prose, callouts and tables. It preserves existing keycaps, explicit `code` literals, URLs and attributes. Stock keyboard OP legends are scoped to that guide. Table accessible names use plain header text even when visible headers contain keycaps or screen-value markup. Search data and all chapter / section IDs remain unchanged by presentation.
+
+The 28 manual checks pass, including bilingual source parity, destinations and search, keycap idempotence and content preservation across every section, literal handling and factual regressions. No browser tool or executable is available; another preview attempt failed with `listen EPERM` at 127.0.0.1:4173. No hardware, rendered comparison or visual pass is claimed.
+
 ## Verification limits
 
 Reference text was read through web access. No browser or browser-capture tool is available, so no rendered screenshots, paired visual comparison, browser console review or real interaction checks were performed. This report does not claim visual QA passed. Automated checks are listed in README.md and can run without network access.

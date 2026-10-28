@@ -11,10 +11,51 @@ const context = vm.createContext({ window: {} });
 for (const file of ['content.js', 'content-en.js', 'content-official.js', 'content-sloop.js', 'firmwares.js', 'locales.js', 'core.js']) vm.runInContext(readFileSync(path.join(root, 'src', file), 'utf8'), context);
 const { pages, sources } = context.window.FeluccaManual;
 const locales = context.window.FeluccaLocales;
-const { parseRoute, formatRoute, firmwareDestination, buildSearchIndex, search, excerpt, tokenize, groupResults, moveSelection, readingAnchor, isComposing } = context.window.FeluccaCore;
+const { parseRoute, formatRoute, firmwareDestination, formatControlLabels, formatControlText, buildSearchIndex, search, excerpt, tokenize, groupResults, moveSelection, readingAnchor, isComposing } = context.window.FeluccaCore;
 const firmwares = context.window.FM1Firmwares;
 const index = buildSearchIndex(pages);
 const byId = new Map(pages.map((page) => [page.id, page]));
+
+test('panel controls share Quick start keycaps in prose, tables, chords and translated text', () => {
+  for (const firmwareId of Object.keys(firmwares)) {
+    for (const text of ['按住 SEL + HOME，再按 REC。', 'Hold SEL + HOME, then press REC.', 'FX → SEL → SELECT → SEL', 'OCT− / OCT+ · KNOB 1–4 · PLAY/STOP']) {
+      const html = formatControlText(text, firmwareId);
+      assert.match(html, /<kbd>/);
+      assert.equal(html.replace(/<\/?kbd>/g, ''), text);
+      assert.equal(formatControlLabels(html, firmwareId), html, 'formatting must not nest keycaps');
+    }
+    const table = formatControlLabels('<table><tr><th>KNOB 1</th><td>HOME</td></tr></table>', firmwareId);
+    assert.match(table, /<th><kbd>KNOB 1<\/kbd><\/th>/);
+    assert.match(table, /<td><kbd>HOME<\/kbd><\/td>/);
+  }
+  assert.equal(formatControlLabels('OP1–OP6', 'official'), '<kbd>OP1–OP6</kbd>');
+  assert.equal(formatControlLabels('OP1–OP6', 'sloop'), 'OP1–OP6');
+});
+
+test('control formatting preserves screen literals, existing keycaps, attributes and technical names', () => {
+  const authored = '<p title="press HOME > SEL">按 <kbd>SEL</kbd>，看 <code>SCL &gt; QNT</code>。<a href="https://example.com/HOME">HOME</a></p><pre>REC + HOME</pre><code>FX LATCH = ON</code>';
+  const rendered = formatControlLabels(authored);
+  assert.match(rendered, /title="press HOME > SEL"/);
+  assert.match(rendered, /href="https:\/\/example.com\/HOME"/);
+  assert.match(rendered, /<a [^>]+><kbd>HOME<\/kbd><\/a>/);
+  for (const literal of ['<kbd>SEL</kbd>', '<code>SCL &gt; QNT</code>', '<pre>REC + HOME</pre>', '<code>FX LATCH = ON</code>']) assert.ok(rendered.includes(literal));
+  const names = 'B_SCL B_SEL HOME_PAGE REC_OFF VOICE FREEZE MUTE SELDOM SELECTOR';
+  assert.equal(formatControlLabels(names), names);
+  assert.equal(formatControlText('<img src=x> HOME & SEL'), '&lt;img src=x&gt; <kbd>HOME</kbd> &amp; <kbd>SEL</kbd>');
+});
+
+test('keycap presentation preserves every manual section, destination and search text', () => {
+  for (const [firmwareId, firmware] of Object.entries(firmwares)) for (const manual of Object.values(firmware.locales)) {
+    for (const page of manual.pages) for (const section of page.sections) {
+      const rendered = formatControlLabels(section.body, firmwareId);
+      assert.equal(rendered.replace(/<\/?kbd\b[^>]*>/g, ''), section.body.replace(/<\/?kbd\b[^>]*>/g, ''), `${firmwareId}/${page.id}/${section.id}`);
+      assert.equal(formatControlLabels(rendered, firmwareId), rendered);
+      assert.deepEqual([...rendered.matchAll(/href="([^"]+)"/g)].map(m => m[1]), [...section.body.matchAll(/href="([^"]+)"/g)].map(m => m[1]));
+      assert.doesNotMatch(rendered, /<kbd>\s*<kbd>/);
+      for (const label of rendered.matchAll(/aria-label="([^"]*)"/g)) assert.doesNotMatch(label[1], /<\/?(?:kbd|code)>/);
+    }
+  }
+});
 
 test('all chapters and sections have unique, valid routes and real source references', () => {
   assert.equal(byId.size, pages.length);
@@ -302,7 +343,7 @@ test('SLOOP retains verified 2.6 operations instead of inheriting Felucca or 2.7
   const sloop = firmwares.sloop.locales.zh;
   const body = (pageId, sectionId) => sloop.pages.find((page) => page.id === pageId).sections.find((item) => item.id === sectionId).body;
   assert.equal(sloop.version, '2.6');
-  assert.equal(sloop.checkedAt, '2026-10-16');
+  assert.equal(sloop.checkedAt, '2026-10-28');
   assert.match(body('controls', 'gestures'), /按住功能键 \+ 短按 HOME/);
   assert.doesNotMatch(body('controls', 'gestures'), /双击/);
   assert.match(body('live-recording', 'free-take'), /下一个第一拍/);
@@ -311,6 +352,37 @@ test('SLOOP retains verified 2.6 operations instead of inheriting Felucca or 2.7
   assert.match(body('presets', 'engine-list'), /DIGITAL/);
   assert.doesNotMatch(body('presets', 'engine-list'), /SLICE/);
   assert.match(body('sources', 'version'), /GUIDE.md 已标为 2.7/);
+});
+
+test('Felucca uses the physical SEL label while preserving screen names and routing values', () => {
+  for (const language of ['zh', 'en']) {
+    const manual = firmwares.felucca.locales[language];
+    const body = (page, section) => manual.pages.find(p => p.id === page).sections.find(s => s.id === section).body;
+    assert.match(body('controls', 'gestures'), /<kbd>SEL<\/kbd>/);
+    assert.match(body('scales', 'white'), /SEL/);
+    assert.match(body('scales', 'white'), /<code>SCL<\/code>/);
+    assert.match(body('shortcuts', 'buttons'), /<kbd>SEL<\/kbd>/);
+    assert.match(body('midi', 'midi-channel'), /<code>SEL<\/code>/);
+    assert.match(body('midi', 'midi-channel'), /CH5-8 \/ CH9-12 \/ CH13-16/);
+    assert.match(body('midi', 'midi-channel'), /OMNI/);
+    for (const page of manual.pages) for (const section of page.sections) {
+      assert.doesNotMatch(section.body, /<kbd>SCL<\/kbd>|(?:短按|长按|双击|Tap|Hold) SCL/);
+    }
+    assert.match(manual.sources.input.url, /\/v1\.6\.1\//);
+    assert.equal(manual.version, '1.6.1');
+  }
+});
+
+test('reviewed instructions retain recording prerequisites and separate firmware backup scopes', () => {
+  const body = (firmware, page, section) => firmwares[firmware].locales.zh.pages.find(p => p.id === page).sections.find(s => s.id === section).body;
+  assert.match(body('felucca', 'modulation', 'locks'), /停止播放并短按 REC 启用步进输入/);
+  assert.match(body('felucca', 'saving', 'load-backup'), /备份不包含 FM6 外部音色库/);
+  assert.match(body('felucca', 'step-recording', 'chord-entry'), /单音模式只保留一个音/);
+  assert.match(body('sloop', 'presets', 'choose'), /KNOB 2/);
+  assert.match(body('sloop', 'sources', 'version'), /d30d655/);
+  assert.match(firmwares.sloop.locales.zh.sources.guide.url, /d30d6553353373cf5506b9ed285fc4a2aa0c30ef/);
+  assert.match(body('official', 'controls', 'gestures'), /<kbd>PIT<\/kbd>/);
+  assert.doesNotMatch(body('official', 'shortcuts', 'buttons'), /OCT±/);
 });
 
 test('stock bilingual search resolves its own tasks without exposing Felucca-only chapters', () => {
